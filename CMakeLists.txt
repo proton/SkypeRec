@@ -6,8 +6,8 @@ IF(COMMAND CMAKE_POLICY)
 	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
-PROJECT(skype-call-recorder)
-SET(TARGET skype-call-recorder)
+PROJECT(skyperec)
+SET(TARGET skyperec)
 
 SET(CMAKE_BUILD_TYPE RELEASE)
 #SET(CMAKE_BUILD_TYPE DEBUG)
@@ -21,29 +21,29 @@ SET(CMAKE_CXX_FLAGS_RELEASE "-O2 -s")
 # sources
 
 SET(SOURCES
-	call.cpp
-	common.cpp
-	gui.cpp
-	mp3writer.cpp
-	preferences.cpp
-	recorder.cpp
-	skype.cpp
-	trayicon.cpp
-	utils.cpp
-	version.cpp
-	vorbiswriter.cpp
-	wavewriter.cpp
-	writer.cpp
+	src/call.cpp
+	src/common.cpp
+	src/gui.cpp
+	src/mp3writer.cpp
+	src/preferences.cpp
+	src/recorder.cpp
+	src/skype.cpp
+	src/trayicon.cpp
+	src/utils.cpp
+	src/version.cpp
+	src/vorbiswriter.cpp
+	src/wavewriter.cpp
+	src/writer.cpp
 )
 
 SET(MOC_HEADERS
-	call.h
-	gui.h
-	preferences.h
-	recorder.h
-	skype.h
-	smartwidgets.h
-	trayicon.h
+	src/call.h
+	src/gui.h
+	src/preferences.h
+	src/recorder.h
+	src/skype.h
+	src/smartwidgets.h
+	src/trayicon.h
 )
 
 SET(RESOURCES resources.qrc)
@@ -54,7 +54,7 @@ ADD_CUSTOM_TARGET(Version
 	${CMAKE_CURRENT_SOURCE_DIR}/makeversion ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "Checking version.cpp" VERBATIM)
 SET_SOURCE_FILES_PROPERTIES(version.cpp PROPERTIES GENERATED TRUE)
-SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES version.cpp)
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES src/version.cpp)
 # required when building out of source, so version.cpp finds headers
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -101,7 +101,7 @@ ADD_DEPENDENCIES(${TARGET} Version)
 # installation
 
 INSTALL(TARGETS ${TARGET} RUNTIME DESTINATION bin)
-INSTALL(FILES skype-call-recorder.desktop DESTINATION share/applications)
-INSTALL(FILES icon.png DESTINATION share/icons/hicolor/128x128/apps
-	RENAME skype-call-recorder.png)
+INSTALL(FILES skyperec.desktop DESTINATION share/applications)
+INSTALL(FILES icons/skyperec-128.png DESTINATION share/icons/hicolor/128x128/apps
+	RENAME skyperec.png)
 
