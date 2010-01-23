@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
 	<file>res/tray.png</file>
-	<file>res/tray-grey.png</file>
+	<file>res/tray-gray.png</file>
 </qresource>
 </RCC>

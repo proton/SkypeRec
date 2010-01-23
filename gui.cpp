@@ -210,7 +210,7 @@ AboutDialog::AboutDialog() {
 	hbox->addWidget(label, 1, Qt::AlignTop);
 
 	label = new QLabel;
-	label->setPixmap(QPixmap(":/icon.png").scaled(QSize(80, 80), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	label->setPixmap(QPixmap(":/res/tray.png").scaled(QSize(80, 80), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	hbox->addWidget(label, 0, Qt::AlignTop);
 
 	str =
@@ -324,7 +324,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setSizeConstraint(QLayout::SetFixedSize);
-	button = new QPushButton(QIcon(":/icon.png"), "Menu");
+	button = new QPushButton(QIcon(":/res/tray.png"), "Menu");
 	vbox->addWidget(button);
 
 	connect(button, SIGNAL(clicked()), this, SIGNAL(activate()));
@@ -333,6 +333,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 }
 
 void MainWindow::setColor(bool color) {
-	button->setIcon(QIcon(color ? ":/icon.png" : ":/icongray.png"));
+	button->setIcon(QIcon(color ? ":/res/tray.png" : ":/res/tray-gray.png"));
 }
 
