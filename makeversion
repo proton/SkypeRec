@@ -3,7 +3,7 @@
 # this script creates version.cpp containing version and other compile-time
 # information.  it expects to get the source directory as only argument.
 
-output=version.cpp
+output=src/version.cpp
 
 src=$1
 test "$src" = '' && src=.

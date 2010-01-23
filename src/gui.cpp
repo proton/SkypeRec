@@ -197,13 +197,13 @@ AboutDialog::AboutDialog() {
 	vbox->addLayout(hbox);
 
 	QString str =
-		"<p><font face='Arial' size='20'><b>SkypeRec</b></font></p>"
+		"<p><font face='Arial' size='20'><b>%1</b></font></p>"
 
 		"<p>Copyright 2008 - 2009 by jlh (<a href='mailto:jlh@gmx.ch'>jlh@gmx.ch</a>)<br>"
 		"Copyright 2010 by Peter Savichev (proton) (<a href='psavichev@gmail.com'>psavichev@gmail.com</a>)<br>"
-		"Version: %1<br>"
-		"Website: <a href='%2'>%2</a></p>";
-	str = str.arg(recorderVersion).arg(websiteURL);
+		"Version: %2<br>"
+		"Website: <a href='%3'>%3</a></p>";
+	str = str.arg(PROGRAM_NAME).arg(recorderVersion).arg(websiteURL);
 	QLabel *label = new QLabel(str);
 	label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 	label->setTextFormat(Qt::RichText);
