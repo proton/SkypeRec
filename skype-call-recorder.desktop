@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Skype Call Recorder
+Name=SkypeRec
 Comment=Tool to record Skype calls to MP3, Ogg Vorbis or WAV files
 Exec=skype-call-recorder
 Icon=skype-call-recorder
