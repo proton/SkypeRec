@@ -1,6 +1,7 @@
 /*
-	Skype Call Recorder
-	Copyright 2008 - 2009 by jlh (jlh at gmx dot ch)
+	SkypeRec
+	Copyright 2008 - 2009 by jlh jlh at gmx dot ch)
+	Copyright 2010 by Peter Savichev  (proton) <psavichev@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the
@@ -196,7 +197,7 @@ AboutDialog::AboutDialog() {
 	vbox->addLayout(hbox);
 
 	QString str =
-		"<p><font face='Arial' size='20'><b>Skype Call Recorder</b></font></p>"
+		"<p><font face='Arial' size='20'><b>SkypeRec</b></font></p>"
 
 		"<p>Copyright 2008 - 2009 by jlh (<a href='mailto:jlh@gmx.ch'>jlh@gmx.ch</a>)<br>"
 		"Version: %1<br>"
@@ -250,14 +251,14 @@ FirstRunDialog::FirstRunDialog() :
 	IconDialogBase("Information", QStyle::SP_MessageBoxInformation)
 {
 	QLabel *label = new QLabel(
-		"<p>Welcome to Skype Call Recorder!</p>"
+		"<p>Welcome to SkypeRec!</p>"
 
-		"<p>Please note that Skype Call Recorder does not have a main window.<br>"
+		"<p>Please note that SkypeRec does not have a main window.<br>"
 		"Instead, it hides itself in the system tray, from where you can open<br>"
 		"the preferences dialog, start or stop recording your Skype calls, or<br>"
 		"access previously recorded calls.</p>"
 
-		"<p>Thank you for using Skype Call Recorder!</p>"
+		"<p>Thank you for using SkypeRec!</p>"
 	);
 	label->setTextFormat(Qt::RichText);
 	vbox->addWidget(label);
@@ -280,7 +281,7 @@ NoSystemTrayDialog::NoSystemTrayDialog() :
 {
 	QLabel *label = new QLabel(
 		PROGRAM_NAME " could not detect a system tray.  The system tray is the main point\n"
-		"of interaction with Skype Call Recorder.  Do you wish to use a small main window instead?"
+		"of interaction with SkypeRec.  Do you wish to use a small main window instead?"
 	);
 	vbox->addWidget(label);
 

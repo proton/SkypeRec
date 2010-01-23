@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-	<file>icon.png</file>
-	<file>icongray.png</file>
+	<file>res/tray.png</file>
+	<file>res/tray-grey.png</file>
 </qresource>
 </RCC>

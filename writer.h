@@ -1,6 +1,7 @@
 /*
-	Skype Call Recorder
-	Copyright 2008 - 2009 by jlh (jlh at gmx dot ch)
+	SkypeRec
+	Copyright 2008 - 2009 by jlh jlh at gmx dot ch)
+	Copyright 2010 by Peter Savichev  (proton) <psavichev@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the
