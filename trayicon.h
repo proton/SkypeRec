@@ -45,7 +45,6 @@ public:
 signals:
 	void requestQuit();
 	void requestAbout();
-	void requestWebsite();
 	void requestOpenPreferences();
 	void requestBrowseCalls();
 

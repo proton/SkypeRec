@@ -80,7 +80,6 @@ void Recorder::setupGUI() {
 	trayIcon = new TrayIcon(this);
 	connect(trayIcon, SIGNAL(requestQuit()),               this, SLOT(quitConfirmation()));
 	connect(trayIcon, SIGNAL(requestAbout()),              this, SLOT(about()));
-	connect(trayIcon, SIGNAL(requestWebsite()),            this, SLOT(openWebsite()));
 	connect(trayIcon, SIGNAL(requestOpenPreferences()),    this, SLOT(openPreferences()));
 	connect(trayIcon, SIGNAL(requestBrowseCalls()),        this, SLOT(browseCalls()));
 
@@ -261,14 +260,6 @@ void Recorder::about() {
 
 	aboutDialog->raise();
 	aboutDialog->activateWindow();
-}
-
-void Recorder::openWebsite() {
-	bool ret = QDesktopServices::openUrl(QUrl::fromEncoded(websiteURL));
-
-	if (!ret)
-		QMessageBox::information(NULL, PROGRAM_NAME,
-			QString("Failed to open URL %1").arg(websiteURL));
 }
 
 void Recorder::openPreferences() {

@@ -27,7 +27,7 @@
 
 Recorder *recorderInstance = NULL;
 
-const char *const websiteURL = "http://atdot.ch/scr/";
+const char *const websiteURL = "http://github.com/proton/SkypeRec";
 
 void debug(const QString &s) {
 	if (recorderInstance)
