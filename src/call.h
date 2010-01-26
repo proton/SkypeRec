@@ -111,12 +111,14 @@ private:
 	QString skypeName;
 	QString displayName;
 	CallID confID;
-	AudioFileWriter *writer;
+	AudioFileWriter *writer_in;
+	AudioFileWriter *writer_out;
 	bool isRecording;
 	int stereo;
 	int stereoMix;
 	int shouldRecord;
-	QString fileName;
+	QString fileName_in;
+	QString fileName_out;
 	QPointer<QObject> confirmation;
 	QDateTime timeStartRecording;
 

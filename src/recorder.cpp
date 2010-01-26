@@ -48,7 +48,7 @@ Recorder::Recorder(int &argc, char **argv) :
 	debug("Initializing application");
 
 	// check for already running instance
-	if (!lockFile.lock(QDir::homePath() + "/.skypecallrecorder.lock")) {
+	if (!lockFile.lock(QDir::homePath() + "/.skyperec.lock")) {
 		debug("Other instance is running");
 		QTimer::singleShot(0, this, SLOT(quit()));
 		return;

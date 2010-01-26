@@ -2,7 +2,7 @@
 BuildRoot: @buildroot@
 
 Summary: Recording tool for Skype Calls
-Name: skype-call-recorder
+Name: skyperec
 Version: @version@
 Release: 1
 Source: %{name}-%{version}.tar.gz
@@ -27,9 +27,9 @@ make DESTDIR="%{buildroot}" install
 
 %files
 %defattr(-,root,root)
-/usr/local/bin/skype-call-recorder
-/usr/local/share/applications/skype-call-recorder.desktop
-/usr/local/share/icons/hicolor/128x128/apps/skype-call-recorder.png
+/usr/local/bin/skyperec
+/usr/local/share/applications/skyperec.desktop
+/usr/local/share/icons/hicolor/128x128/apps/skyperec.png
 
 %clean
 rm -rf "%{buildroot}"

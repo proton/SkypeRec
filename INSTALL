@@ -1,10 +1,10 @@
 
-Skype Call Recorder - Installation
+SkypeRec - Installation
 ==================================
 
 (1) Prerequisits
 
-    To build and use Skype Call Recorder you will need:
+    To build and use SkypeRec you will need:
 
       - A C++ compiler
       - make
@@ -52,7 +52,7 @@ Skype Call Recorder - Installation
     'Utilities' or 'Accessories' section.  If it doesn't, you can
     start it with
 
-        $ skype-call-recorder &
+        $ skyperec &
 
     It can be convenient to add it to your auto-start programs
 

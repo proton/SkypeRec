@@ -31,6 +31,8 @@
 #include <cmath>
 #include <cstring>
 
+#include <QtDebug>
+
 #include "call.h"
 #include "common.h"
 #include "skype.h"
@@ -97,7 +99,8 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	handler(h),
 	id(i),
 	status("UNKNOWN"),
-	writer(NULL),
+	writer_in(NULL),
+	writer_out(NULL),
 	isRecording(false),
 	shouldRecord(1),
 	sync(100 * 2 * 3, 320) // approx 3 seconds
@@ -272,8 +275,10 @@ void Call::denyRecording() {
 }
 
 void Call::removeFile() {
-	debug(QString("Removing '%1'").arg(fileName));
-	QFile::remove(fileName);
+	debug(QString("Removing '%1'").arg(fileName_in));
+	debug(QString("Removing '%1'").arg(fileName_out));
+	QFile::remove(fileName_in);
+	QFile::remove(fileName_out);
 }
 
 void Call::startRecording(bool force) {
@@ -313,26 +318,54 @@ void Call::startRecording(bool force) {
 	QString format = preferences.get(Pref::OutputFormat).toString();
 
 	if (format == "wav")
-		writer = new WaveWriter;
+	{
+		writer_in = new WaveWriter;
+		writer_out = new WaveWriter;
+	}
 	else if (format == "mp3")
-		writer = new Mp3Writer;
+	{
+		writer_in = new Mp3Writer;
+		writer_out = new Mp3Writer;
+	}
 	else /*if (format == "vorbis")*/
-		writer = new VorbisWriter;
+	{
+		writer_in = new VorbisWriter;
+		writer_out = new VorbisWriter;
+	}
 
 	if (preferences.get(Pref::OutputSaveTags).toBool())
-		writer->setTags(constructCommentTag(), timeStartRecording);
+	{
+		writer_in->setTags(constructCommentTag(), timeStartRecording);
+		writer_out->setTags(constructCommentTag(), timeStartRecording);
+	}
 
-	bool b = writer->open(fn, skypeSamplingRate, stereo);
-	fileName = writer->fileName();
+	bool b = writer_in->open(fn+"-in", skypeSamplingRate, stereo);
+	fileName_in = writer_in->fileName();
 
 	if (!b) {
 		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
-			QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(fileName));
+			QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(fileName_in));
 		box->setWindowModality(Qt::NonModal);
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
 		removeFile();
-		delete writer;
+		delete writer_in;
+		return;
+	}
+
+	//TODO:
+
+	b = writer_out->open(fn+"-out", skypeSamplingRate, stereo);
+	fileName_out = writer_out->fileName();
+
+	if (!b) {
+		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
+			QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(fileName_out));
+		box->setWindowModality(Qt::NonModal);
+		box->setAttribute(Qt::WA_DeleteOnClose);
+		box->show();
+		removeFile();
+		delete writer_out;
 		return;
 	}
 
@@ -343,8 +376,9 @@ void Call::startRecording(bool force) {
 	serverRemote->listen();
 	connect(serverRemote, SIGNAL(newConnection()), this, SLOT(acceptRemote()));
 
-	QString rep1 = skype->sendWithReply(QString("ALTER CALL %1 SET_CAPTURE_MIC PORT=\"%2\"").arg(id).arg(serverLocal->serverPort()));
-	QString rep2 = skype->sendWithReply(QString("ALTER CALL %1 SET_OUTPUT SOUNDCARD=\"default\" PORT=\"%2\"").arg(id).arg(serverRemote->serverPort()));
+	//TODO: если я правильно понимаю - надо несколько skype заводить, а может и нет...
+	QString rep1 = skype->sendWithReply(QString("ALTER CALL %1 SET_CAPTURE_MIC PORT=\"%2\"").arg(id).arg(serverLocal->serverPort()));//serverLocal ловит меня
+	QString rep2 = skype->sendWithReply(QString("ALTER CALL %1 SET_OUTPUT SOUNDCARD=\"default\" PORT=\"%2\"").arg(id).arg(serverRemote->serverPort()));//serverRemote ловит остальных
 
 	if (!rep1.startsWith("ALTER CALL ") || !rep2.startsWith("ALTER CALL")) {
 		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
@@ -354,7 +388,8 @@ void Call::startRecording(bool force) {
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
 		removeFile();
-		delete writer;
+		delete writer_in;
+		delete writer_out;
 		delete serverRemote;
 		delete serverLocal;
 		return;
@@ -409,8 +444,9 @@ void Call::mixToMono(long samples) {
 	qint16 *localData = reinterpret_cast<qint16 *>(bufferLocal.data());
 	qint16 *remoteData = reinterpret_cast<qint16 *>(bufferRemote.data());
 
-	for (long i = 0; i < samples; i++)
-		localData[i] = ((qint32)localData[i] + (qint32)remoteData[i]) / (qint32)2;
+	//for (long i = 0; i < samples; i++)
+		//TODO: не здесь ли соединение?!
+		//localData[i] = ((qint32)localData[i] + (qint32)remoteData[i]) / (qint32)2; //TODO: сдесь смешивание, походу
 }
 
 void Call::mixToStereo(long samples, int pan) {
@@ -421,6 +457,7 @@ void Call::mixToStereo(long samples, int pan) {
 	qint32 fr = pan;
 
 	for (long i = 0; i < samples; i++) {
+		//TODO: не здесь ли соединение?!
 		qint16 newLocal = ((qint32)localData[i] * fl + (qint32)remoteData[i] * fr + (qint32)50) / (qint32)100;
 		qint16 newRemote = ((qint32)localData[i] * fr + (qint32)remoteData[i] * fl + (qint32)50) / (qint32)100;
 		localData[i] = newLocal;
@@ -517,17 +554,19 @@ void Call::tryToWrite(bool flush) {
 		// mono
 		mixToMono(samples);
 		QByteArray dummy;
-		success = writer->write(bufferLocal, dummy, samples, flush);
+		//TODO: здесь запись
+		success = (writer_in->write(bufferLocal, dummy, samples, flush) && writer_out->write(bufferRemote, dummy, samples, flush));
+		//success = (writer_in->write(bufferLocal, dummy, samples, flush) && writer_out->write(bufferLocal, dummy, samples, flush));
 		bufferRemote.remove(0, samples * 2);
 	} else if (stereoMix == 0) {
 		// local left, remote right
-		success = writer->write(bufferLocal, bufferRemote, samples, flush);
+		success = (writer_in->write(bufferLocal, bufferRemote, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
 	} else if (stereoMix == 100) {
 		// local right, remote left
-		success = writer->write(bufferRemote, bufferLocal, samples, flush);
+		success = (writer_in->write(bufferRemote, bufferLocal, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
 	} else {
 		mixToStereo(samples, stereoMix);
-		success = writer->write(bufferLocal, bufferRemote, samples, flush);
+		success = (writer_in->write(bufferLocal, bufferRemote, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
 	}
 
 	if (!success) {
@@ -569,8 +608,10 @@ void Call::stopRecording(bool flush) {
 	// flush data to writer
 	if (flush)
 		tryToWrite(true);
-	writer->close();
-	delete writer;
+	writer_in->close();
+	writer_out->close();
+	delete writer_in;
+	delete writer_out;
 
 	if (syncFile.isOpen())
 		syncFile.close();
