@@ -28,6 +28,7 @@
 #include <QObject>
 #include <QString>
 #include <QByteArray>
+#include <QVector>
 #include <QMap>
 #include <QSet>
 #include <QPointer>
@@ -68,7 +69,8 @@ private:
 	DISABLE_COPY_AND_ASSIGNMENT(AutoSync);
 };
 
-class Call : public QObject {
+class Call : public QObject
+{
 	Q_OBJECT
 public:
 	Call(CallHandler *, Skype *, CallID);
@@ -83,7 +85,7 @@ public:
 	bool statusActive() const;
 	CallID getID() const { return id; }
 	CallID getConfID() const { return confID; }
-	void removeFile();
+	void removeFiles();
 	void hideConfirmation(int);
 	bool getIsRecording() const { return isRecording; }
 
@@ -95,8 +97,14 @@ signals:
 	void showLegalInformation();
 
 private:
+	enum writer_id
+	{
+		wr_in, wr_out, wr_2ch, wr_all, wr_count
+	};
+
+private:
 	QString constructFileName() const;
-	QString constructCommentTag() const;
+	QString constructCommentTag(writer_id) const;
 	void mixToMono(long);
 	void mixToStereo(long, int);
 	void setShouldRecord();
@@ -111,14 +119,12 @@ private:
 	QString skypeName;
 	QString displayName;
 	CallID confID;
-	AudioFileWriter *writer_in;
-	AudioFileWriter *writer_out;
+
+	QVector<AudioFileWriter*> writers;
 	bool isRecording;
 	int stereo;
 	int stereoMix;
 	int shouldRecord;
-	QString fileName_in;
-	QString fileName_out;
 	QPointer<QObject> confirmation;
 	QDateTime timeStartRecording;
 

@@ -99,12 +99,12 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	handler(h),
 	id(i),
 	status("UNKNOWN"),
-	writer_in(NULL),
-	writer_out(NULL),
 	isRecording(false),
 	shouldRecord(1),
 	sync(100 * 2 * 3, 320) // approx 3 seconds
 {
+	writers.fill(NULL, wr_count);
+	//
 	debug(QString("Call %1: Call object contructed").arg(id));
 
 	// Call objects track calls even before they are in progress and also
@@ -204,15 +204,29 @@ QString Call::constructFileName() const {
 		skype->getObject("PROFILE FULLNAME"), timeStartRecording);
 }
 
-QString Call::constructCommentTag() const {
-	QString str("Skype call between %1%2 and %3%4.");
-	QString dn1, dn2;
+QString Call::constructCommentTag(writer_id id) const
+{
+	QString str("Skype call between %1%2 and %3%4 - %5.");
+	QString dn1, dn2, did;
 	if (!displayName.isEmpty())
-		dn1 = QString(" (") + displayName + ")";
+	{
+		dn1 = QString(" (%1)").arg(displayName);
+	}
 	dn2 = skype->getObject("PROFILE FULLNAME");
 	if (!dn2.isEmpty())
-		dn2 = QString(" (") + dn2 + ")";
-	return str.arg(skypeName, dn1, skype->getSkypeName(), dn2);
+	{
+		dn2 = QString(" (%1)").arg(dn2);
+	}
+	switch(id)
+	{
+		case wr_in: did = QString("IN"); break;
+		case wr_out: did = QString("OUT"); break;
+		case wr_2ch: did = QString("2Ch"); break;
+		case wr_all: did = QString("ALL"); break;
+		default: break;
+	}
+
+	return str.arg(skypeName, dn1, skype->getSkypeName(), dn2, did);
 }
 
 void Call::setShouldRecord() {
@@ -271,14 +285,17 @@ void Call::denyRecording() {
 	// note that the call might already be finished by now
 	shouldRecord = 0;
 	stopRecording(true);
-	removeFile();
+	removeFiles();
 }
 
-void Call::removeFile() {
-	debug(QString("Removing '%1'").arg(fileName_in));
-	debug(QString("Removing '%1'").arg(fileName_out));
-	QFile::remove(fileName_in);
-	QFile::remove(fileName_out);
+void Call::removeFiles()
+{
+	for(int i=0; i<writers.count(); ++i)
+	{
+		const QString fileName = writers[i]->fileName();
+		debug(QString("Removing '%1'").arg(fileName));
+		QFile::remove(fileName);
+	}
 }
 
 void Call::startRecording(bool force) {
@@ -312,60 +329,38 @@ void Call::startRecording(bool force) {
 	timeStartRecording = QDateTime::currentDateTime();
 	QString fn = constructFileName();
 
-	stereo = preferences.get(Pref::OutputStereo).toBool();
-	stereoMix = preferences.get(Pref::OutputStereoMix).toInt();
+	//stereo = preferences.get(Pref::OutputStereo).toBool();
+	//stereoMix = preferences.get(Pref::OutputStereoMix).toInt();
 
 	QString format = preferences.get(Pref::OutputFormat).toString();
 
-	if (format == "wav")
-	{
-		writer_in = new WaveWriter;
-		writer_out = new WaveWriter;
-	}
-	else if (format == "mp3")
-	{
-		writer_in = new Mp3Writer;
-		writer_out = new Mp3Writer;
-	}
-	else /*if (format == "vorbis")*/
-	{
-		writer_in = new VorbisWriter;
-		writer_out = new VorbisWriter;
-	}
+	if (format == "wav") writers.fill(new WaveWriter());
+	else if (format == "mp3") writers.fill(new Mp3Writer());
+	else /*if (format == "vorbis")*/  writers.fill(new VorbisWriter());
 
 	if (preferences.get(Pref::OutputSaveTags).toBool())
 	{
-		writer_in->setTags(constructCommentTag(), timeStartRecording);
-		writer_out->setTags(constructCommentTag(), timeStartRecording);
+		for(int i=0; i<writers.count(); ++i)
+		{
+			writers[i]->setTags(constructCommentTag(writer_id(i)), timeStartRecording);
+		}
 	}
 
-	bool b = writer_in->open(fn+"-in", skypeSamplingRate, stereo);
-	fileName_in = writer_in->fileName();
+	bool files_are_open;
 
-	if (!b) {
-		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
-			QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(fileName_in));
+	files_are_open = writers[wr_in]->open(fn+"-in", skypeSamplingRate, false);
+	if(files_are_open) files_are_open = writers[wr_out]->open(fn+"-out", skypeSamplingRate, false);
+	if(files_are_open) files_are_open = writers[wr_2ch]->open(fn+"-2ch", skypeSamplingRate, true);
+	if(files_are_open) files_are_open = writers[wr_all]->open(fn+"-all", skypeSamplingRate, false);
+
+	if (!files_are_open)
+	{
+		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error", QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(writers[wr_in]->fileName()));
 		box->setWindowModality(Qt::NonModal);
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
-		removeFile();
-		delete writer_in;
-		return;
-	}
-
-	//TODO:
-
-	b = writer_out->open(fn+"-out", skypeSamplingRate, stereo);
-	fileName_out = writer_out->fileName();
-
-	if (!b) {
-		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
-			QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(fileName_out));
-		box->setWindowModality(Qt::NonModal);
-		box->setAttribute(Qt::WA_DeleteOnClose);
-		box->show();
-		removeFile();
-		delete writer_out;
+		removeFiles();
+		for(int i=0; i<writers.count(); ++i) delete writers[i];
 		return;
 	}
 
@@ -377,19 +372,19 @@ void Call::startRecording(bool force) {
 	connect(serverRemote, SIGNAL(newConnection()), this, SLOT(acceptRemote()));
 
 	//TODO: если я правильно понимаю - надо несколько skype заводить, а может и нет...
-	QString rep1 = skype->sendWithReply(QString("ALTER CALL %1 SET_CAPTURE_MIC PORT=\"%2\"").arg(id).arg(serverLocal->serverPort()));//serverLocal ловит меня
-	QString rep2 = skype->sendWithReply(QString("ALTER CALL %1 SET_OUTPUT SOUNDCARD=\"default\" PORT=\"%2\"").arg(id).arg(serverRemote->serverPort()));//serverRemote ловит остальных
+	QString rep_out = skype->sendWithReply(QString("ALTER CALL %1 SET_CAPTURE_MIC PORT=\"%2\"").arg(id).arg(serverLocal->serverPort()));//out
+	QString rep_in = skype->sendWithReply(QString("ALTER CALL %1 SET_OUTPUT SOUNDCARD=\"default\" PORT=\"%2\"").arg(id).arg(serverRemote->serverPort()));//in
 
-	if (!rep1.startsWith("ALTER CALL ") || !rep2.startsWith("ALTER CALL")) {
+	if (!rep_in.startsWith("ALTER CALL ") || !rep_out.startsWith("ALTER CALL"))
+	{
 		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
 			QString(PROGRAM_NAME " could not obtain the audio streams from Skype and can thus not record this call.\n\n"
-			"The replies from Skype were:\n%1\n%2").arg(rep1, rep2));
+			"The replies from Skype were:\n%1\n%2").arg(rep_in, rep_out));
 		box->setWindowModality(Qt::NonModal);
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
-		removeFile();
-		delete writer_in;
-		delete writer_out;
+		removeFiles();
+		for(int i=0; i<writers.count(); ++i) delete writers[i];
 		delete serverRemote;
 		delete serverLocal;
 		return;
@@ -444,9 +439,10 @@ void Call::mixToMono(long samples) {
 	qint16 *localData = reinterpret_cast<qint16 *>(bufferLocal.data());
 	qint16 *remoteData = reinterpret_cast<qint16 *>(bufferRemote.data());
 
-	//for (long i = 0; i < samples; i++)
-		//TODO: не здесь ли соединение?!
-		//localData[i] = ((qint32)localData[i] + (qint32)remoteData[i]) / (qint32)2; //TODO: сдесь смешивание, походу
+	for (long i = 0; i < samples; ++i)
+	{
+		localData[i] = ((qint32)localData[i] + (qint32)remoteData[i]) / (qint32)2;
+	}
 }
 
 void Call::mixToStereo(long samples, int pan) {
@@ -456,8 +452,8 @@ void Call::mixToStereo(long samples, int pan) {
 	qint32 fl = 100 - pan;
 	qint32 fr = pan;
 
-	for (long i = 0; i < samples; i++) {
-		//TODO: не здесь ли соединение?!
+	for (long i = 0; i < samples; ++i)
+	{
 		qint16 newLocal = ((qint32)localData[i] * fl + (qint32)remoteData[i] * fr + (qint32)50) / (qint32)100;
 		qint16 newRemote = ((qint32)localData[i] * fr + (qint32)remoteData[i] * fl + (qint32)50) / (qint32)100;
 		localData[i] = newLocal;
@@ -548,28 +544,16 @@ void Call::tryToWrite(bool flush) {
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
-	bool success;
+	QByteArray dummy;
+	bool success = writers[wr_in]->write(bufferRemote, dummy, samples, flush);
+	if(success) success = writers[wr_out]->write(bufferLocal, dummy, samples, flush);
+	//bufferRemote.remove(0, samples * 2);//wtf?!
+	if(success) success = writers[wr_2ch]->write(bufferLocal, bufferRemote, samples, flush);
+	//mixToMono(samples);
+	//if(success) success = writers[wr_out]->write(bufferLocal, dummy, samples, flush); //TODO:
 
-	if (!stereo) {
-		// mono
-		mixToMono(samples);
-		QByteArray dummy;
-		//TODO: здесь запись
-		success = (writer_out->write(bufferLocal, dummy, samples, flush) && writer_in->write(bufferRemote, dummy, samples, flush));
-		//success = (writer_out->write(bufferLocal, dummy, samples, flush) && writer_in->write(bufferLocal, dummy, samples, flush));
-		bufferRemote.remove(0, samples * 2);
-	} else if (stereoMix == 0) {
-		// local left, remote right
-		success = (writer_out->write(bufferLocal, bufferRemote, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
-	} else if (stereoMix == 100) {
-		// local right, remote left
-		success = (writer_out->write(bufferRemote, bufferLocal, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
-	} else {
-		mixToStereo(samples, stereoMix);
-		success = (writer_out->write(bufferLocal, bufferRemote, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
-	}
-
-	if (!success) {
+	if (!success)
+	{
 		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
 			QString(PROGRAM_NAME " encountered an error while writing this call to disk.  Recording terminated."));
 		box->setWindowModality(Qt::NonModal);
@@ -606,15 +590,14 @@ void Call::stopRecording(bool flush) {
 	// than acceptable.
 
 	// flush data to writer
-	if (flush)
-		tryToWrite(true);
-	writer_in->close();
-	writer_out->close();
-	delete writer_in;
-	delete writer_out;
+	if (flush) tryToWrite(true);
+	for(int i=0; i<writers.count(); ++i)
+	{
+		writers[i]->close();
+		delete writers[i];
+	}
 
-	if (syncFile.isOpen())
-		syncFile.close();
+	if (syncFile.isOpen()) syncFile.close();
 
 	// we must disconnect all signals from the sockets first, so that upon
 	// closing them it won't call checkConnections() and we don't land here
@@ -639,7 +622,7 @@ CallHandler::~CallHandler() {
 	QList<Call *> list = calls.values();
 	if (!list.isEmpty()) {
 		debug(QString("Destroying CallHandler, these calls still exist:"));
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < list.size(); ++i) {
 			Call *c = list.at(i);
 			debug(QString("    call %1, status=%2, okToDelete=%3").arg(c->getID()).arg(c->getStatus()).arg(c->okToDelete()));
 		}
@@ -650,13 +633,13 @@ CallHandler::~CallHandler() {
 
 void CallHandler::updateConfIDs() {
 	QList<Call *> list = calls.values();
-	for (int i = 0; i < list.size(); i++)
+	for (int i = 0; i < list.size(); ++i)
 		list.at(i)->updateConfID();
 }
 
 bool CallHandler::isConferenceRecording(CallID id) const {
 	QList<Call *> list = calls.values();
-	for (int i = 0; i < list.size(); i++) {
+	for (int i = 0; i < list.size(); ++i) {
 		Call *c = list.at(i);
 		if (c->getConfID() == id && c->getIsRecording())
 			return true;
@@ -703,7 +686,7 @@ void CallHandler::callCmd(const QStringList &args) {
 
 void CallHandler::prune() {
 	QList<Call *> list = calls.values();
-	for (int i = 0; i < list.size(); i++) {
+	for (int i = 0; i < list.size(); ++i) {
 		Call *c = list.at(i);
 		if (c->statusDone() && c->okToDelete()) {
 			// we ignore this call from now on, because Skype might still send
@@ -737,7 +720,7 @@ void CallHandler::stopRecordingAndDelete(int id) {
 
 	Call *call = calls[id];
 	call->stopRecording();
-	call->removeFile();
+	call->removeFiles();
 	call->hideConfirmation(0);
 }
 
