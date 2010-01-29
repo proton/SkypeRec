@@ -555,18 +555,18 @@ void Call::tryToWrite(bool flush) {
 		mixToMono(samples);
 		QByteArray dummy;
 		//TODO: здесь запись
-		success = (writer_in->write(bufferLocal, dummy, samples, flush) && writer_out->write(bufferRemote, dummy, samples, flush));
-		//success = (writer_in->write(bufferLocal, dummy, samples, flush) && writer_out->write(bufferLocal, dummy, samples, flush));
+		success = (writer_out->write(bufferLocal, dummy, samples, flush) && writer_in->write(bufferRemote, dummy, samples, flush));
+		//success = (writer_out->write(bufferLocal, dummy, samples, flush) && writer_in->write(bufferLocal, dummy, samples, flush));
 		bufferRemote.remove(0, samples * 2);
 	} else if (stereoMix == 0) {
 		// local left, remote right
-		success = (writer_in->write(bufferLocal, bufferRemote, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
+		success = (writer_out->write(bufferLocal, bufferRemote, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
 	} else if (stereoMix == 100) {
 		// local right, remote left
-		success = (writer_in->write(bufferRemote, bufferLocal, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
+		success = (writer_out->write(bufferRemote, bufferLocal, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
 	} else {
 		mixToStereo(samples, stereoMix);
-		success = (writer_in->write(bufferLocal, bufferRemote, samples, flush) && writer_out->write(bufferLocal, bufferRemote, samples, flush));
+		success = (writer_out->write(bufferLocal, bufferRemote, samples, flush) && writer_in->write(bufferLocal, bufferRemote, samples, flush));
 	}
 
 	if (!success) {

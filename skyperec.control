@@ -1,0 +1,20 @@
+# this is the control file for .deb packages.  it will get
+# preprocessed as follows: comments like this one will be removed.
+# lines starting with "@@flag ..." will only be kept (with the
+# "@@flag " removed) if that flag is enabled.  @variable@ are
+# substituted variables.
+#
+Package: skyperec
+Version: @version@
+Section: contrib/net
+Priority: optional
+Architecture: @arch@
+@@ubuntu Depends: libqt4-gui (>= 4.3), libmp3lame0 (>= 3.97) | liblame0 (>= 3.97), libid3-3.8.3c2a, libvorbisenc2, dbus, dbus-x11
+@@debian Depends: libqt4-gui (>= 4.3), libmp3lame0 (>= 3.97), libid3-3.8.3c2a, libvorbisenc2, dbus, dbus-x11
+@@eee    Depends: libqt4-gui (>= 4.3), libvorbisenc2, dbus
+Installed-Size: @size@
+Provides: skyperec
+Maintainer: jlh <jlh@gmx.ch>
+Description: Records your Skype calls
+ Skype Call recorder allows you to record Skype calls to MP3, Ogg Vorbis or WAV files.
+
