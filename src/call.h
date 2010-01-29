@@ -134,7 +134,7 @@ private:
 
 	QTcpServer *serverLocal, *serverRemote;
 	QTcpSocket *socketLocal, *socketRemote;
-	QByteArray bufferLocal, bufferRemote;
+	QByteArray bufferLocal, bufferRemote, bufferMixed;
 
 private slots:
 	void acceptLocal();
