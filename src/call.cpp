@@ -334,9 +334,12 @@ void Call::startRecording(bool force) {
 
 	QString format = preferences.get(Pref::OutputFormat).toString();
 
-	if (format == "wav") writers.fill(new WaveWriter());
-	else if (format == "mp3") writers.fill(new Mp3Writer());
-	else /*if (format == "vorbis")*/  writers.fill(new VorbisWriter());
+	for(int i=0; i<writers.count(); ++i)
+	{
+		if (format == "wav") writers[i] = new WaveWriter();
+		else if (format == "mp3") writers[i] = new Mp3Writer();
+		else /*if (format == "vorbis")*/  writers[i] = new VorbisWriter();
+	}
 
 	if (preferences.get(Pref::OutputSaveTags).toBool())
 	{
@@ -346,9 +349,7 @@ void Call::startRecording(bool force) {
 		}
 	}
 
-	bool files_are_open;
-
-	files_are_open = writers[wr_in]->open(fn+"-in", skypeSamplingRate, false);
+	bool files_are_open = writers[wr_in]->open(fn+"-in", skypeSamplingRate, false);
 	if(files_are_open) files_are_open = writers[wr_out]->open(fn+"-out", skypeSamplingRate, false);
 	if(files_are_open) files_are_open = writers[wr_2ch]->open(fn+"-2ch", skypeSamplingRate, true);
 	if(files_are_open) files_are_open = writers[wr_all]->open(fn+"-all", skypeSamplingRate, false);
