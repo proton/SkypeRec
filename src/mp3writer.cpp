@@ -126,20 +126,26 @@ void Mp3Writer::writeTags() {
 	mustWriteTags = false;
 }
 
-bool Mp3Writer::write(QByteArray &left, QByteArray &right, long samples, bool flush) {
+bool Mp3Writer::write(QByteArray &left, QByteArray &right, long samples, bool flush)
+{
+	
 	int ret;
 	QByteArray output;
 	// rough upper bound formula taken from lame.h
 	long size = samples + samples / 4 + 7200;
 
-	do {
+	do
+	{
 		output.resize(size);
 
-		if (stereo) {
+		if (stereo)
+		{
 			ret = lame_encode_buffer(lame, reinterpret_cast<const short *>(left.constData()),
 				reinterpret_cast<const short *>(right.constData()), samples,
 				reinterpret_cast<unsigned char *>(output.data()), output.size());
-		} else {
+		}
+		else
+		{
 			// lame.h claims to write to the buffers, even though they're declared const, be safe
 			// TODO: this mixes both channels again!  can lame take only mono samples?
 			ret = lame_encode_buffer(lame, reinterpret_cast<const short *>(left.data()),
@@ -147,7 +153,8 @@ bool Mp3Writer::write(QByteArray &left, QByteArray &right, long samples, bool fl
 				reinterpret_cast<unsigned char *>(output.data()), output.size());
 		}
 
-		if (ret == -1) {
+		if (ret == -1)
+		{
 			// there wasn't enough space in output
 			size *= 2;
 			continue;
@@ -167,11 +174,9 @@ bool Mp3Writer::write(QByteArray &left, QByteArray &right, long samples, bool fl
 	}
 
 	left.remove(0, samples * 2);
-	if (stereo)
-		right.remove(0, samples * 2);
+	if (stereo) right.remove(0, samples * 2);
 
-	if (!flush)
-		return true;
+	if (!flush) return true;
 
 	// flush mp3
 
@@ -182,12 +187,14 @@ bool Mp3Writer::write(QByteArray &left, QByteArray &right, long samples, bool fl
 	lame = NULL;
 	hasFlushed = true;
 
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		debug(QString("Error while flushing MP3 file, code = %1").arg(ret));
 		return false;
 	}
 
-	if (ret > 0) {
+	if (ret > 0)
+	{
 		output.truncate(ret);
 		file.write(output);
 	}

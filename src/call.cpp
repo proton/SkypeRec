@@ -372,7 +372,6 @@ void Call::startRecording(bool force) {
 	serverRemote->listen();
 	connect(serverRemote, SIGNAL(newConnection()), this, SLOT(acceptRemote()));
 
-	//TODO: если я правильно понимаю - надо несколько skype заводить, а может и нет...
 	QString rep_out = skype->sendWithReply(QString("ALTER CALL %1 SET_CAPTURE_MIC PORT=\"%2\"").arg(id).arg(serverLocal->serverPort()));//out
 	QString rep_in = skype->sendWithReply(QString("ALTER CALL %1 SET_OUTPUT SOUNDCARD=\"default\" PORT=\"%2\"").arg(id).arg(serverRemote->serverPort()));//in
 
@@ -533,13 +532,15 @@ void Call::tryToWrite(bool flush) {
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
+	bool success = true;
+	QByteArray bufferRemote2(bufferRemote);
+	QByteArray bufferLocal2(bufferLocal);
 	QByteArray dummy;
-	bool success = writers[wr_in]->write(bufferRemote, dummy, samples, flush);
-	if(success) success = writers[wr_out]->write(bufferLocal, dummy, samples, flush);
-	//bufferRemote.remove(0, samples * 2);//wtf?!
-	if(success) success = writers[wr_2ch]->write(bufferLocal, bufferRemote, samples, flush);
 	mixToMono(samples);
-	if(success) success = writers[wr_out]->write(bufferMixed, dummy, samples, flush); //TODO:
+	if(success) success = writers[wr_all]->write(bufferMixed, dummy, samples, flush);
+	if(success) success = writers[wr_in]->write(bufferRemote, dummy, samples, flush);
+	if(success) success = writers[wr_out]->write(bufferLocal, dummy, samples, flush);
+	if(success) success = writers[wr_2ch]->write(bufferLocal2, bufferRemote2, samples, flush); //fail
 
 	if (!success)
 	{
