@@ -37,6 +37,7 @@
 #include <QFile>
 
 #include "common.h"
+#include "settings.h"
 
 class QStringList;
 class Skype;
@@ -97,14 +98,8 @@ signals:
 	void showLegalInformation();
 
 private:
-	enum writer_id
-	{
-		wr_in, wr_out, wr_2ch, wr_all, wr_count
-	};
-
-private:
 	QString constructFileName() const;
-	QString constructCommentTag(writer_id) const;
+	QString constructCommentTag(FILE_WRITER_ID id) const;
 	void mixToMono(long);
 	void mixToStereo(long, int);
 	void setShouldRecord();

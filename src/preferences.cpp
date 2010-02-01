@@ -47,19 +47,17 @@
 #include "common.h"
 #include "recorder.h"
 
-Preferences preferences;
+//QString getOutputPath()
+//{
+//	QString path = preferences.get(Pref::OutputPath).toString();
+//	if (path.startsWith("~/") || path == "~") path.replace(0, 1, QDir::homePath());
+//	else if (!path.startsWith('/')) path.prepend(QDir::currentPath() + '/');
+//	return path;
+//}
 
-QString getOutputPath() {
-	QString path = preferences.get(Pref::OutputPath).toString();
-	if (path.startsWith("~/") || path == "~")
-		path.replace(0, 1, QDir::homePath());
-	else if (!path.startsWith('/'))
-		path.prepend(QDir::currentPath() + '/');
-	return path;
-}
-
-namespace {
-QString escape(const QString &s) {
+namespace
+{
+	QString escape(const QString &s){
 	QString out = s;
 	out.replace('%', "%%");
 	out.replace('/', '_');
@@ -73,26 +71,19 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 	QString pattern = pat.isEmpty() ? preferences.get(Pref::OutputPattern).toString() : pat;
 	QString fileName;
 
-	for (int i = 0; i < pattern.size(); i++) {
-		if (pattern.at(i) == QChar('&') && i + 1 < pattern.size()) {
-			i++;
-			if (pattern.at(i) == QChar('s'))
-				fileName += escape(skypeName);
-			else if (pattern.at(i) == QChar('d'))
-				fileName += escape(displayName);
-			else if (pattern.at(i) == QChar('t'))
-				fileName += escape(mySkypeName);
-			else if (pattern.at(i) == QChar('e'))
-				fileName += escape(myDisplayName);
-			else if (pattern.at(i) == QChar('&'))
-				fileName += QChar('&');
-			else {
-				fileName += QChar('&');
-				fileName += pattern.at(i);
-			}
-		} else {
-			fileName += pattern.at(i);
+	for (int i = 0; i < pattern.size(); ++i)
+	{
+		if (pattern.at(i) == QChar('&') && i + 1 < pattern.size())
+		{
+			++i;
+			if (pattern.at(i) == QChar('s')) fileName += escape(skypeName);
+			else if (pattern.at(i) == QChar('d')) fileName += escape(displayName);
+			else if (pattern.at(i) == QChar('t')) fileName += escape(mySkypeName);
+			else if (pattern.at(i) == QChar('e')) fileName += escape(myDisplayName);
+			else if (pattern.at(i) == QChar('&')) fileName += QChar('&');
+			else fileName += QChar('&')+pattern.at(i);
 		}
+		else fileName += pattern.at(i);
 	}
 
 	// TODO: uhm, does QT provide any time formatting the strftime() way?
@@ -681,131 +672,131 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
 	return flags | Qt::ItemIsEditable;
 }
 
-// preference
-
-void Preference::listAdd(const QString &value) {
-	QStringList list = toList();
-	if (!list.contains(value)) {
-		list.append(value);
-		set(list);
-	}
-}
-
-void Preference::listRemove(const QString &value) {
-	QStringList list = toList();
-	if (list.removeAll(value))
-		set(list);
-}
-
-bool Preference::listContains(const QString &value) {
-	QStringList list = toList();
-	return list.contains(value);
-}
-
-// base preferences
-
-BasePreferences::~BasePreferences() {
-	clear();
-}
-
-bool BasePreferences::load(const QString &filename) {
-	clear();
-	QFile file(filename);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		debug(QString("Can't open '%1' for loading preferences").arg(filename));
-		return false;
-	}
-	char buf[65536];
-	while (!file.atEnd()) {
-		qint64 len = file.readLine(buf, sizeof(buf));
-		if (len == -1)
-			break;
-		QString line = QString::fromUtf8(buf);
-		line = line.trimmed();
-		if (line.at(0) == '#')
-			continue;
-		int index = line.indexOf('=');
-		if (index < 0)
-			// TODO warn
-			continue;
-		get(line.left(index).trimmed()).set(line.mid(index + 1).trimmed());
-        }
-	debug(QString("Loaded %1 preferences from '%2'").arg(prefs.size()).arg(filename));
-	return true;
-}
-
-namespace {
-bool comparePreferencePointers(const Preference *p1, const Preference *p2)
-{
-	return *p1 < *p2;
-}
-}
-
-bool BasePreferences::save(const QString &filename) {
-	qSort(prefs.begin(), prefs.end(), comparePreferencePointers);
-	QFile file(filename);
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-		debug(QString("Can't open '%1' for saving preferences").arg(filename));
-		return false;
-	}
-	QTextStream out(&file);
-	for (int i = 0; i < prefs.size(); i++) {
-		const Preference &p = *prefs.at(i);
-		out << p.name() << " = " << p.toString() << "\n";
-	}
-	debug(QString("Saved %1 preferences to '%2'").arg(prefs.size()).arg(filename));
-	return true;
-}
-
-Preference &BasePreferences::get(const QString &name) {
-	for (int i = 0; i < prefs.size(); i++)
-		if (prefs.at(i)->name() == name)
-			return *prefs[i];
-	prefs.append(new Preference(name));
-	return *prefs.last();
-}
-
-void BasePreferences::remove(const QString &name) {
-	for (int i = 0; i < prefs.size(); i++) {
-		if (prefs.at(i)->name() == name) {
-			delete prefs.takeAt(i);
-			return;
-		}
-	}
-}
-
-bool BasePreferences::exists(const QString &name) const {
-	for (int i = 0; i < prefs.size(); i++)
-		if (prefs.at(i)->name() == name)
-			return true;
-	return false;
-}
-
-void BasePreferences::clear() {
-	for (int i = 0; i < prefs.size(); i++)
-		delete prefs.at(i);
-	prefs.clear();
-}
-
-// preferences
-
-void Preferences::setPerCallerPreference(const QString &sn, int mode) {
-	// this would interfer with the per caller dialog
-	recorderInstance->closePerCallerDialog();
-
-	Preference &pYes = get(Pref::AutoRecordYes);
-	Preference &pAsk = get(Pref::AutoRecordAsk);
-	Preference &pNo = get(Pref::AutoRecordNo);
-
-	pYes.listRemove(sn);
-	pAsk.listRemove(sn);
-	pNo.listRemove(sn);
-
-	if (mode == 2)
-		pYes.listAdd(sn);
-	else if (mode == 1)
-		pAsk.listAdd(sn);
-	else if (mode == 0)
-		pNo.listAdd(sn);
-}
+//// preference
+//
+//void Preference::listAdd(const QString &value) {
+//	QStringList list = toList();
+//	if (!list.contains(value)) {
+//		list.append(value);
+//		set(list);
+//	}
+//}
+//
+//void Preference::listRemove(const QString &value) {
+//	QStringList list = toList();
+//	if (list.removeAll(value))
+//		set(list);
+//}
+//
+//bool Preference::listContains(const QString &value) {
+//	QStringList list = toList();
+//	return list.contains(value);
+//}
+//
+//// base preferences
+//
+//BasePreferences::~BasePreferences() {
+//	clear();
+//}
+//
+//bool BasePreferences::load(const QString &filename) {
+//	clear();
+//	QFile file(filename);
+//	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//		debug(QString("Can't open '%1' for loading preferences").arg(filename));
+//		return false;
+//	}
+//	char buf[65536];
+//	while (!file.atEnd()) {
+//		qint64 len = file.readLine(buf, sizeof(buf));
+//		if (len == -1)
+//			break;
+//		QString line = QString::fromUtf8(buf);
+//		line = line.trimmed();
+//		if (line.at(0) == '#')
+//			continue;
+//		int index = line.indexOf('=');
+//		if (index < 0)
+//			// TODO warn
+//			continue;
+//		get(line.left(index).trimmed()).set(line.mid(index + 1).trimmed());
+//        }
+//	debug(QString("Loaded %1 preferences from '%2'").arg(prefs.size()).arg(filename));
+//	return true;
+//}
+//
+//namespace {
+//bool comparePreferencePointers(const Preference *p1, const Preference *p2)
+//{
+//	return *p1 < *p2;
+//}
+//}
+//
+//bool BasePreferences::save(const QString &filename) {
+//	qSort(prefs.begin(), prefs.end(), comparePreferencePointers);
+//	QFile file(filename);
+//	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+//		debug(QString("Can't open '%1' for saving preferences").arg(filename));
+//		return false;
+//	}
+//	QTextStream out(&file);
+//	for (int i = 0; i < prefs.size(); i++) {
+//		const Preference &p = *prefs.at(i);
+//		out << p.name() << " = " << p.toString() << "\n";
+//	}
+//	debug(QString("Saved %1 preferences to '%2'").arg(prefs.size()).arg(filename));
+//	return true;
+//}
+//
+//Preference &BasePreferences::get(const QString &name) {
+//	for (int i = 0; i < prefs.size(); i++)
+//		if (prefs.at(i)->name() == name)
+//			return *prefs[i];
+//	prefs.append(new Preference(name));
+//	return *prefs.last();
+//}
+//
+//void BasePreferences::remove(const QString &name) {
+//	for (int i = 0; i < prefs.size(); i++) {
+//		if (prefs.at(i)->name() == name) {
+//			delete prefs.takeAt(i);
+//			return;
+//		}
+//	}
+//}
+//
+//bool BasePreferences::exists(const QString &name) const {
+//	for (int i = 0; i < prefs.size(); i++)
+//		if (prefs.at(i)->name() == name)
+//			return true;
+//	return false;
+//}
+//
+//void BasePreferences::clear() {
+//	for (int i = 0; i < prefs.size(); i++)
+//		delete prefs.at(i);
+//	prefs.clear();
+//}
+//
+//// preferences
+//
+//void Preferences::setPerCallerPreference(const QString &sn, int mode) {
+//	// this would interfer with the per caller dialog
+//	recorderInstance->closePerCallerDialog();
+//
+//	Preference &pYes = get(Pref::AutoRecordYes);
+//	Preference &pAsk = get(Pref::AutoRecordAsk);
+//	Preference &pNo = get(Pref::AutoRecordNo);
+//
+//	pYes.listRemove(sn);
+//	pAsk.listRemove(sn);
+//	pNo.listRemove(sn);
+//
+//	if (mode == 2)
+//		pYes.listAdd(sn);
+//	else if (mode == 1)
+//		pAsk.listAdd(sn);
+//	else if (mode == 0)
+//		pNo.listAdd(sn);
+//}
 

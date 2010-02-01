@@ -103,7 +103,7 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	shouldRecord(1),
 	sync(100 * 2 * 3, 320) // approx 3 seconds
 {
-	writers.fill(NULL, wr_count);
+	writers.fill(NULL, FILE_WRITER_COUNT);
 	//
 	debug(QString("Call %1: Call object contructed").arg(id));
 
@@ -204,7 +204,7 @@ QString Call::constructFileName() const {
 		skype->getObject("PROFILE FULLNAME"), timeStartRecording);
 }
 
-QString Call::constructCommentTag(writer_id id) const
+QString Call::constructCommentTag(FILE_WRITER_ID id) const
 {
 	QString str("Skype call between %1%2 and %3%4 - %5.");
 	QString dn1, dn2, did;
@@ -219,10 +219,10 @@ QString Call::constructCommentTag(writer_id id) const
 	}
 	switch(id)
 	{
-		case wr_in: did = QString("IN"); break;
-		case wr_out: did = QString("OUT"); break;
-		case wr_2ch: did = QString("2Ch"); break;
-		case wr_all: did = QString("ALL"); break;
+		case FILE_WRITER_IN: did = QString("IN"); break;
+		case FILE_WRITER_OUT: did = QString("OUT"); break;
+		case FILE_WRITER_2CH: did = QString("2Ch"); break;
+		case FILE_WRITER_ALL: did = QString("ALL"); break;
 		default: break;
 	}
 
@@ -234,33 +234,34 @@ void Call::setShouldRecord() {
 	// the call should not be recorded, 1 if we should ask and 2 if we
 	// should record
 
-	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
-	if (list.contains(skypeName)) {
-		shouldRecord = 2;
-		return;
-	}
-
-	list = preferences.get(Pref::AutoRecordAsk).toList();
-	if (list.contains(skypeName)) {
-		shouldRecord = 1;
-		return;
-	}
-
-	list = preferences.get(Pref::AutoRecordNo).toList();
-	if (list.contains(skypeName)) {
-		shouldRecord = 0;
-		return;
-	}
-
-	QString def = preferences.get(Pref::AutoRecordDefault).toString();
-	if (def == "yes")
-		shouldRecord = 2;
-	else if (def == "ask")
-		shouldRecord = 1;
-	else if (def == "no")
-		shouldRecord = 0;
-	else
-		shouldRecord = 1;
+//TODO:
+//	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
+//	if (list.contains(skypeName)) {
+//		shouldRecord = 2;
+//		return;
+//	}
+//
+//	list = preferences.get(Pref::AutoRecordAsk).toList();
+//	if (list.contains(skypeName)) {
+//		shouldRecord = 1;
+//		return;
+//	}
+//
+//	list = preferences.get(Pref::AutoRecordNo).toList();
+//	if (list.contains(skypeName)) {
+//		shouldRecord = 0;
+//		return;
+//	}
+//
+//	QString def = preferences.get(Pref::AutoRecordDefault).toString();
+//	if (def == "yes")
+//		shouldRecord = 2;
+//	else if (def == "ask")
+//		shouldRecord = 1;
+//	else if (def == "no")
+//		shouldRecord = 0;
+//	else
+//		shouldRecord = 1;
 }
 
 void Call::ask() {
@@ -298,6 +299,15 @@ void Call::removeFiles()
 	}
 }
 
+inline bool writer_stereo(FILE_WRITER_ID id)
+{
+	switch(id)
+	{
+		case FILE_WRITER_2CH: return true;
+		default: return false;
+	}
+}
+
 void Call::startRecording(bool force) {
 	if (force)
 		hideConfirmation(2);
@@ -329,39 +339,29 @@ void Call::startRecording(bool force) {
 	timeStartRecording = QDateTime::currentDateTime();
 	QString fn = constructFileName();
 
-	//stereo = preferences.get(Pref::OutputStereo).toBool();
-	//stereoMix = preferences.get(Pref::OutputStereoMix).toInt();
-
-	QString format = preferences.get(Pref::OutputFormat).toString();
-
-	for(int i=0; i<writers.count(); ++i)
+	int i;
+	bool files_are_open = true;
+	for(i=0; i<writers.count(); ++i)
 	{
-		if (format == "wav") writers[i] = new WaveWriter();
-		else if (format == "mp3") writers[i] = new Mp3Writer();
-		else /*if (format == "vorbis")*/  writers[i] = new VorbisWriter();
-	}
-
-	if (preferences.get(Pref::OutputSaveTags).toBool())
-	{
-		for(int i=0; i<writers.count(); ++i)
+		FileWriter fw = settings.fileWriters(i);
+		switch(fw.format)
 		{
-			writers[i]->setTags(constructCommentTag(writer_id(i)), timeStartRecording);
+			case AUDIO_FORMAT_WAV: writers[i] = new WaveWriter();
+			case AUDIO_FORMAT_MP3: writers[i] = new Mp3Writer();
+			case AUDIO_FORMAT_OGG: writers[i] = new VorbisWriter();
 		}
+		if(settings.filesTags()) writers[i]->setTags(constructCommentTag(FILE_WRITER_ID(i)), timeStartRecording);
+		files_are_open = writers[i]->open(fn+fw.postfix, skypeSamplingRate, writer_stereo(FILE_WRITER_ID(i)));
+		if(!files_are_open) break;
 	}
-
-	bool files_are_open = writers[wr_in]->open(fn+"-in", skypeSamplingRate, false);
-	if(files_are_open) files_are_open = writers[wr_out]->open(fn+"-out", skypeSamplingRate, false);
-	if(files_are_open) files_are_open = writers[wr_2ch]->open(fn+"-2ch", skypeSamplingRate, true);
-	if(files_are_open) files_are_open = writers[wr_all]->open(fn+"-all", skypeSamplingRate, false);
-
 	if (!files_are_open)
 	{
-		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error", QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(writers[wr_in]->fileName()));
+		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error", QString(PROGRAM_NAME " could not open the file %1.  Please verify the output file pattern.").arg(writers[i]->fileName()));
 		box->setWindowModality(Qt::NonModal);
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
 		removeFiles();
-		for(int i=0; i<writers.count(); ++i) delete writers[i];
+		for(int i=0; i<writers.count(); ++i) if(writers[i]!=NULL) delete writers[i];
 		return;
 	}
 
@@ -390,11 +390,12 @@ void Call::startRecording(bool force) {
 		return;
 	}
 
-	if (preferences.get(Pref::DebugWriteSyncFile).toBool()) {
-		syncFile.setFileName(fn + ".sync");
-		syncFile.open(QIODevice::WriteOnly);
-		syncTime.start();
-	}
+//TODO:
+//	if (preferences.get(Pref::DebugWriteSyncFile).toBool()) {
+//		syncFile.setFileName(fn + ".sync");
+//		syncFile.open(QIODevice::WriteOnly);
+//		syncTime.start();
+//	}
 
 	isRecording = true;
 	emit startedRecording(id);
@@ -537,10 +538,10 @@ void Call::tryToWrite(bool flush) {
 	QByteArray bufferLocal2(bufferLocal);
 	QByteArray dummy;
 	mixToMono(samples);
-	if(success) success = writers[wr_all]->write(bufferMixed, dummy, samples, flush);
-	if(success) success = writers[wr_in]->write(bufferRemote, dummy, samples, flush);
-	if(success) success = writers[wr_out]->write(bufferLocal, dummy, samples, flush);
-	if(success) success = writers[wr_2ch]->write(bufferLocal2, bufferRemote2, samples, flush); //fail
+	if(success) success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
+	if(success) success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
+	if(success) success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
+	if(success) success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush); //fail
 
 	if (!success)
 	{
@@ -714,14 +715,16 @@ void CallHandler::stopRecordingAndDelete(int id) {
 	call->hideConfirmation(0);
 }
 
-void CallHandler::showLegalInformation() {
-	if (preferences.get(Pref::SuppressLegalInformation).toBool())
-		return;
-
-	if (!legalInformationDialog)
-		legalInformationDialog = new LegalInformationDialog;
-
-	legalInformationDialog->raise();
-	legalInformationDialog->activateWindow();
+void CallHandler::showLegalInformation()
+{
+	//TODO:
+//	if (preferences.get(Pref::SuppressLegalInformation).toBool())
+//		return;
+//
+//	if (!legalInformationDialog)
+//		legalInformationDialog = new LegalInformationDialog;
+//
+//	legalInformationDialog->raise();
+//	legalInformationDialog->activateWindow();
 }
 
