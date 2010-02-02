@@ -35,7 +35,6 @@
 #include "gui.h"
 #include "common.h"
 #include "preferences.h"
-#include "smartwidgets.h"
 
 // ---- IconDialogBase
 
@@ -109,18 +108,22 @@ RecordConfirmationDialog::RecordConfirmationDialog(const QString &sn, const QStr
 	activateWindow();
 }
 
-void RecordConfirmationDialog::yesClicked() {
-	emit yes();
-	if (remember->isChecked())
-		preferences.setPerCallerPreference(skypeName, 2);
-	accept();
+void RecordConfirmationDialog::yesClicked()
+{
+	//TODO:
+//	emit yes();
+//	if (remember->isChecked())
+//		preferences.setPerCallerPreference(skypeName, 2);
+//	accept();
 }
 
-void RecordConfirmationDialog::noClicked() {
-	emit no();
-	if (remember->isChecked())
-		preferences.setPerCallerPreference(skypeName, 0);
-	accept();
+void RecordConfirmationDialog::noClicked()
+{
+	//TODO:
+//	emit no();
+//	if (remember->isChecked())
+//		preferences.setPerCallerPreference(skypeName, 0);
+//	accept();
 }
 
 void RecordConfirmationDialog::enableWidgets() {
@@ -166,8 +169,9 @@ LegalInformationDialog::LegalInformationDialog() :
 
 	additionalInfoLayout->addSpacing(10);
 
-	QWidget *checkBox = new SmartCheckBox("Do not show this information again", preferences.get(Pref::SuppressLegalInformation));
-	additionalInfoLayout->addWidget(checkBox);
+	//TODO:
+//	QWidget *checkBox = new SmartCheckBox("Do not show this information again", preferences.get(Pref::SuppressLegalInformation));
+//	additionalInfoLayout->addWidget(checkBox);
 
 	vbox->addWidget(additionalInfo);
 
@@ -264,8 +268,9 @@ FirstRunDialog::FirstRunDialog() :
 	label->setTextFormat(Qt::RichText);
 	vbox->addWidget(label);
 
-	QWidget *checkBox = new SmartCheckBox("Do not show this information again", preferences.get(Pref::SuppressFirstRunInformation));
-	vbox->addWidget(checkBox);
+	//TODO:
+//	QWidget *checkBox = new SmartCheckBox("Do not show this information again", preferences.get(Pref::SuppressFirstRunInformation));
+//	vbox->addWidget(checkBox);
 
 	QPushButton *button = new QPushButton("&OK");
 	button->setDefault(true);

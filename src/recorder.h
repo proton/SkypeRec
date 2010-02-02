@@ -55,18 +55,11 @@ public slots:
 	void skypeNotify(const QString &);
 	void skypeConnected(bool);
 	void skypeConnectionFailed(const QString &);
-	void savePreferences();
 
 private:
-	void loadPreferences();
 	void setupGUI();
 	void setupSkype();
 	void setupCallHandler();
-	void sanatizePreferences();
-	bool convertSettingsToV2();
-	bool sanatizePreferencesGeneric();
-
-	QString getConfigFile() const;
 
 private:
 	QPointer<Skype> skype;

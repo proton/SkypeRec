@@ -27,6 +27,7 @@ SET(SOURCES
 	src/mp3writer.cpp
 	src/preferences.cpp
 	src/recorder.cpp
+	src/settings.cpp
 	src/skype.cpp
 	src/trayicon.cpp
 	src/utils.cpp
@@ -41,8 +42,8 @@ SET(MOC_HEADERS
 	src/gui.h
 	src/preferences.h
 	src/recorder.h
+	src/settings.h
 	src/skype.h
-	src/smartwidgets.h
 	src/trayicon.h
 )
 

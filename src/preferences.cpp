@@ -34,7 +34,6 @@
 #include <QSet>
 #include <QTextStream>
 #include <QtAlgorithms>
-#include <QDir>
 #include <QDateTime>
 #include <QList>
 #include <QFileIconProvider>
@@ -43,17 +42,8 @@
 #include <ctime>
 
 #include "preferences.h"
-#include "smartwidgets.h"
 #include "common.h"
 #include "recorder.h"
-
-//QString getOutputPath()
-//{
-//	QString path = preferences.get(Pref::OutputPath).toString();
-//	if (path.startsWith("~/") || path == "~") path.replace(0, 1, QDir::homePath());
-//	else if (!path.startsWith('/')) path.prepend(QDir::currentPath() + '/');
-//	return path;
-//}
 
 namespace
 {
@@ -68,7 +58,7 @@ namespace
 QString getFileName(const QString &skypeName, const QString &displayName,
 	const QString &mySkypeName, const QString &myDisplayName, const QDateTime &timestamp, const QString &pat)
 {
-	QString pattern = pat.isEmpty() ? preferences.get(Pref::OutputPattern).toString() : pat;
+	QString pattern = pat.isEmpty() ? settings.filesNames() : pat;
 	QString fileName;
 
 	for (int i = 0; i < pattern.size(); ++i)
@@ -81,7 +71,11 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 			else if (pattern.at(i) == QChar('t')) fileName += escape(mySkypeName);
 			else if (pattern.at(i) == QChar('e')) fileName += escape(myDisplayName);
 			else if (pattern.at(i) == QChar('&')) fileName += QChar('&');
-			else fileName += QChar('&')+pattern.at(i);
+			else
+			{
+				fileName += QChar('&');
+				fileName += pattern.at(i);
+			}
 		}
 		else fileName += pattern.at(i);
 	}
@@ -94,7 +88,7 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 	fileName = QString::fromLocal8Bit(buf);
 	delete[] buf;
 
-	return getOutputPath() + '/' + fileName;
+	return settings.filesDirectory() + '/' + fileName;
 }
 
 // preferences dialog
@@ -110,20 +104,20 @@ QWidget *PreferencesDialog::createRecordingTab() {
 	QWidget *widget = new QWidget;
 	QVBoxLayout *vbox = new QVBoxLayout(widget);
 
-	Preference &preference = preferences.get(Pref::AutoRecordDefault);
-	SmartRadioButton *radio = new SmartRadioButton("Automatically &record all calls", preference, "yes");
-	vbox->addWidget(radio);
-	radio = new SmartRadioButton("&Ask for every call", preference, "ask");
-	vbox->addWidget(radio);
-	radio = new SmartRadioButton("Do &not automatically record calls", preference, "no");
-	vbox->addWidget(radio);
-
-	QPushButton *button = new QPushButton("Edit &per caller preferences");
-	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
-	vbox->addWidget(button);
-
-	SmartCheckBox *check = new SmartCheckBox("Show &balloon notification when recording starts", preferences.get(Pref::NotifyRecordingStart));
-	vbox->addWidget(check);
+//	Preference &preference = preferences.get(Pref::AutoRecordDefault);
+//	SmartRadioButton *radio = new SmartRadioButton("Automatically &record all calls", preference, "yes");
+//	vbox->addWidget(radio);
+//	radio = new SmartRadioButton("&Ask for every call", preference, "ask");
+//	vbox->addWidget(radio);
+//	radio = new SmartRadioButton("Do &not automatically record calls", preference, "no");
+//	vbox->addWidget(radio);
+//
+//	QPushButton *button = new QPushButton("Edit &per caller preferences");
+//	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
+//	vbox->addWidget(button);
+//
+//	SmartCheckBox *check = new SmartCheckBox("Show &balloon notification when recording starts", preferences.get(Pref::NotifyRecordingStart));
+//	vbox->addWidget(check);
 
 	vbox->addStretch();
 	return widget;
@@ -131,146 +125,146 @@ QWidget *PreferencesDialog::createRecordingTab() {
 
 QWidget *PreferencesDialog::createPathTab() {
 	QWidget *widget = new QWidget;
-	QVBoxLayout *vbox = new QVBoxLayout(widget);
-
-	QLabel *label = new QLabel("&Save recorded calls here:");
-	outputPathEdit = new SmartLineEdit(preferences.get(Pref::OutputPath));
-	label->setBuddy(outputPathEdit);
-	connect(outputPathEdit, SIGNAL(textChanged(const QString &)), this, SLOT(updateAbsolutePathWarning(const QString &)));
-	QPushButton *button = new QPushButton(QFileIconProvider().icon(QFileIconProvider::Folder), "Browse");
-	connect(button, SIGNAL(clicked(bool)), this, SLOT(browseOutputPath()));
-	QHBoxLayout *hbox = new QHBoxLayout;
-	hbox->addWidget(outputPathEdit);
-	hbox->addWidget(button);
-	vbox->addWidget(label);
-	vbox->addLayout(hbox);
-
-	label = new QLabel("File &name:");
-	patternWidget = new SmartEditableComboBox(preferences.get(Pref::OutputPattern));
-	label->setBuddy(patternWidget);
-	patternWidget->addItem("%Y-%m-%d %H:%M:%S Call with &s");
-	patternWidget->addItem("Call with &s, %a %b %d %Y, %H:%M:%S");
-	patternWidget->addItem("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S");
-	patternWidget->addItem("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S");
-	patternWidget->setupDone();
-	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
-	vbox->addWidget(label);
-	vbox->addWidget(patternWidget);
-
-	vbox->addStretch();
-
-	absolutePathWarningLabel = new QLabel("<b>Warning:</b> The path you have entered is not an absolute path!");
-	vbox->addWidget(absolutePathWarningLabel);
-
-	updatePatternToolTip("");
-	updateAbsolutePathWarning(preferences.get(Pref::OutputPath).toString());
+//	QVBoxLayout *vbox = new QVBoxLayout(widget);
+//
+//	QLabel *label = new QLabel("&Save recorded calls here:");
+//	outputPathEdit = new SmartLineEdit(preferences.get(Pref::OutputPath));
+//	label->setBuddy(outputPathEdit);
+//	connect(outputPathEdit, SIGNAL(textChanged(const QString &)), this, SLOT(updateAbsolutePathWarning(const QString &)));
+//	QPushButton *button = new QPushButton(QFileIconProvider().icon(QFileIconProvider::Folder), "Browse");
+//	connect(button, SIGNAL(clicked(bool)), this, SLOT(browseOutputPath()));
+//	QHBoxLayout *hbox = new QHBoxLayout;
+//	hbox->addWidget(outputPathEdit);
+//	hbox->addWidget(button);
+//	vbox->addWidget(label);
+//	vbox->addLayout(hbox);
+//
+//	label = new QLabel("File &name:");
+//	patternWidget = new SmartEditableComboBox(preferences.get(Pref::OutputPattern));
+//	label->setBuddy(patternWidget);
+//	patternWidget->addItem("%Y-%m-%d %H:%M:%S Call with &s");
+//	patternWidget->addItem("Call with &s, %a %b %d %Y, %H:%M:%S");
+//	patternWidget->addItem("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S");
+//	patternWidget->addItem("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S");
+//	patternWidget->setupDone();
+//	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
+//	vbox->addWidget(label);
+//	vbox->addWidget(patternWidget);
+//
+//	vbox->addStretch();
+//
+//	absolutePathWarningLabel = new QLabel("<b>Warning:</b> The path you have entered is not an absolute path!");
+//	vbox->addWidget(absolutePathWarningLabel);
+//
+//	updatePatternToolTip("");
+//	updateAbsolutePathWarning(preferences.get(Pref::OutputPath).toString());
 
 	return widget;
 }
 
 QWidget *PreferencesDialog::createFormatTab() {
 	QWidget *widget = new QWidget;
-	QVBoxLayout *vbox = new QVBoxLayout(widget);
-	QGridLayout *grid = new QGridLayout;
-
-	QLabel *label = new QLabel("Fil&e format:");
-	formatWidget = new SmartComboBox(preferences.get(Pref::OutputFormat));
-	label->setBuddy(formatWidget);
-	formatWidget->addItem("WAV PCM", "wav");
-	formatWidget->addItem("MP3", "mp3");
-	formatWidget->addItem("Ogg Vorbis", "vorbis");
-	formatWidget->setupDone();
-	connect(formatWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatSettings()));
-	grid->addWidget(label, 0, 0);
-	grid->addWidget(formatWidget, 0, 1);
-
-	label = new QLabel("MP3 &bitrate:");
-	SmartComboBox *combo = new SmartComboBox(preferences.get(Pref::OutputFormatMp3Bitrate));
-	label->setBuddy(combo);
-	combo->addItem("8 kbps", 8);
-	combo->addItem("16 kbps", 16);
-	combo->addItem("24 kbps", 24);
-	combo->addItem("32 kbps (recommended for mono)", 32);
-	combo->addItem("40 kbps", 40);
-	combo->addItem("48 kbps", 48);
-	combo->addItem("56 kbps", 56);
-	combo->addItem("64 kbps (recommended for stereo)", 64);
-	combo->addItem("80 kbps", 80);
-	combo->addItem("96 kbps", 96);
-	combo->addItem("112 kbps", 112);
-	combo->addItem("128 kbps", 128);
-	combo->addItem("144 kbps", 144);
-	combo->addItem("160 kbps", 160);
-	combo->setupDone();
-	mp3Settings.append(label);
-	mp3Settings.append(combo);
-	grid->addWidget(label, 1, 0);
-	grid->addWidget(combo, 1, 1);
-
-	label = new QLabel("Ogg Vorbis &quality:");
-	combo = new SmartComboBox(preferences.get(Pref::OutputFormatVorbisQuality));
-	label->setBuddy(combo);
-	combo->addItem("Quality -1", -1);
-	combo->addItem("Quality 0", 0);
-	combo->addItem("Quality 1", 1);
-	combo->addItem("Quality 2", 2);
-	combo->addItem("Quality 3 (recommended)", 3);
-	combo->addItem("Quality 4", 4);
-	combo->addItem("Quality 5", 5);
-	combo->addItem("Quality 6", 6);
-	combo->addItem("Quality 7", 7);
-	combo->addItem("Quality 8", 8);
-	combo->addItem("Quality 9", 9);
-	combo->addItem("Quality 10", 10);
-	combo->setupDone();
-	vorbisSettings.append(label);
-	vorbisSettings.append(combo);
-	grid->addWidget(label, 2, 0);
-	grid->addWidget(combo, 2, 1);
-
-	vbox->addLayout(grid);
-
-	SmartCheckBox *check = new SmartCheckBox("Save to &stereo file", preferences.get(Pref::OutputStereo));
-	connect(check, SIGNAL(clicked(bool)), this, SLOT(updateStereoSettings(bool)));
-	vbox->addWidget(check);
-
-	stereoMixLabel = new QLabel("");
-	SmartSlider *slider = new SmartSlider(preferences.get(Pref::OutputStereoMix));
-	stereoMixLabel->setBuddy(slider);
-	slider->setOrientation(Qt::Horizontal);
-	slider->setRange(0, 100);
-	slider->setSingleStep(1);
-	slider->setPageStep(10);
-	slider->setTickPosition(QSlider::TicksBelow);
-	slider->setTickInterval(10);
-	slider->setupDone();
-	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateStereoMixLabel(int)));
-	stereoSettings.append(stereoMixLabel);
-	stereoSettings.append(slider);
-	vbox->addWidget(stereoMixLabel);
-	vbox->addWidget(slider);
-
-	check = new SmartCheckBox("Save call &information in files", preferences.get(Pref::OutputSaveTags));
-	mp3Settings.append(check);
-	vorbisSettings.append(check);
-	vbox->addWidget(check);
-
-	vbox->addStretch();
-	updateFormatSettings();
-	updateStereoSettings(preferences.get(Pref::OutputStereo).toBool());
-	updateStereoMixLabel(preferences.get(Pref::OutputStereoMix).toInt());
+//	QVBoxLayout *vbox = new QVBoxLayout(widget);
+//	QGridLayout *grid = new QGridLayout;
+//
+//	QLabel *label = new QLabel("Fil&e format:");
+//	formatWidget = new SmartComboBox(preferences.get(Pref::OutputFormat));
+//	label->setBuddy(formatWidget);
+//	formatWidget->addItem("WAV PCM", "wav");
+//	formatWidget->addItem("MP3", "mp3");
+//	formatWidget->addItem("Ogg Vorbis", "vorbis");
+//	formatWidget->setupDone();
+//	connect(formatWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatSettings()));
+//	grid->addWidget(label, 0, 0);
+//	grid->addWidget(formatWidget, 0, 1);
+//
+//	label = new QLabel("MP3 &bitrate:");
+//	SmartComboBox *combo = new SmartComboBox(preferences.get(Pref::OutputFormatMp3Bitrate));
+//	label->setBuddy(combo);
+//	combo->addItem("8 kbps", 8);
+//	combo->addItem("16 kbps", 16);
+//	combo->addItem("24 kbps", 24);
+//	combo->addItem("32 kbps (recommended for mono)", 32);
+//	combo->addItem("40 kbps", 40);
+//	combo->addItem("48 kbps", 48);
+//	combo->addItem("56 kbps", 56);
+//	combo->addItem("64 kbps (recommended for stereo)", 64);
+//	combo->addItem("80 kbps", 80);
+//	combo->addItem("96 kbps", 96);
+//	combo->addItem("112 kbps", 112);
+//	combo->addItem("128 kbps", 128);
+//	combo->addItem("144 kbps", 144);
+//	combo->addItem("160 kbps", 160);
+//	combo->setupDone();
+//	mp3Settings.append(label);
+//	mp3Settings.append(combo);
+//	grid->addWidget(label, 1, 0);
+//	grid->addWidget(combo, 1, 1);
+//
+//	label = new QLabel("Ogg Vorbis &quality:");
+//	combo = new SmartComboBox(preferences.get(Pref::OutputFormatVorbisQuality));
+//	label->setBuddy(combo);
+//	combo->addItem("Quality -1", -1);
+//	combo->addItem("Quality 0", 0);
+//	combo->addItem("Quality 1", 1);
+//	combo->addItem("Quality 2", 2);
+//	combo->addItem("Quality 3 (recommended)", 3);
+//	combo->addItem("Quality 4", 4);
+//	combo->addItem("Quality 5", 5);
+//	combo->addItem("Quality 6", 6);
+//	combo->addItem("Quality 7", 7);
+//	combo->addItem("Quality 8", 8);
+//	combo->addItem("Quality 9", 9);
+//	combo->addItem("Quality 10", 10);
+//	combo->setupDone();
+//	vorbisSettings.append(label);
+//	vorbisSettings.append(combo);
+//	grid->addWidget(label, 2, 0);
+//	grid->addWidget(combo, 2, 1);
+//
+//	vbox->addLayout(grid);
+//
+//	SmartCheckBox *check = new SmartCheckBox("Save to &stereo file", preferences.get(Pref::OutputStereo));
+//	connect(check, SIGNAL(clicked(bool)), this, SLOT(updateStereoSettings(bool)));
+//	vbox->addWidget(check);
+//
+//	stereoMixLabel = new QLabel("");
+//	SmartSlider *slider = new SmartSlider(preferences.get(Pref::OutputStereoMix));
+//	stereoMixLabel->setBuddy(slider);
+//	slider->setOrientation(Qt::Horizontal);
+//	slider->setRange(0, 100);
+//	slider->setSingleStep(1);
+//	slider->setPageStep(10);
+//	slider->setTickPosition(QSlider::TicksBelow);
+//	slider->setTickInterval(10);
+//	slider->setupDone();
+//	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateStereoMixLabel(int)));
+//	stereoSettings.append(stereoMixLabel);
+//	stereoSettings.append(slider);
+//	vbox->addWidget(stereoMixLabel);
+//	vbox->addWidget(slider);
+//
+//	check = new SmartCheckBox("Save call &information in files", preferences.get(Pref::OutputSaveTags));
+//	mp3Settings.append(check);
+//	vorbisSettings.append(check);
+//	vbox->addWidget(check);
+//
+//	vbox->addStretch();
+//	updateFormatSettings();
+//	updateStereoSettings(preferences.get(Pref::OutputStereo).toBool());
+//	updateStereoMixLabel(preferences.get(Pref::OutputStereoMix).toInt());
 	return widget;
 }
 
 QWidget *PreferencesDialog::createMiscTab() {
 	QWidget *widget = new QWidget;
-	QVBoxLayout *vbox = new QVBoxLayout(widget);
-
-	SmartCheckBox *check = new SmartCheckBox("&Display a small main window.  Enable this if your\n"
-		"environment does not provide a system tray (needs restart)", preferences.get(Pref::GuiWindowed));
-	vbox->addWidget(check);
-
-	vbox->addStretch();
+//	QVBoxLayout *vbox = new QVBoxLayout(widget);
+//
+//	SmartCheckBox *check = new SmartCheckBox("&Display a small main window.  Enable this if your\n"
+//		"environment does not provide a system tray (needs restart)", preferences.get(Pref::GuiWindowed));
+//	vbox->addWidget(check);
+//
+//	vbox->addStretch();
 	return widget;
 }
 
@@ -302,21 +296,21 @@ PreferencesDialog::PreferencesDialog() {
 }
 
 void PreferencesDialog::updateFormatSettings() {
-	QVariant v = formatWidget->itemData(formatWidget->currentIndex());
-	// disable
-	if (v != "mp3")
-		for (int i = 0; i < mp3Settings.size(); i++)
-			mp3Settings.at(i)->setEnabled(false);
-	if (v != "vorbis")
-		for (int i = 0; i < vorbisSettings.size(); i++)
-			vorbisSettings.at(i)->setEnabled(false);
-	// enable
-	if (v == "mp3")
-		for (int i = 0; i < mp3Settings.size(); i++)
-			mp3Settings.at(i)->setEnabled(true);
-	if (v == "vorbis")
-		for (int i = 0; i < vorbisSettings.size(); i++)
-			vorbisSettings.at(i)->setEnabled(true);
+//	QVariant v = formatWidget->itemData(formatWidget->currentIndex());
+//	// disable
+//	if (v != "mp3")
+//		for (int i = 0; i < mp3Settings.size(); i++)
+//			mp3Settings.at(i)->setEnabled(false);
+//	if (v != "vorbis")
+//		for (int i = 0; i < vorbisSettings.size(); i++)
+//			vorbisSettings.at(i)->setEnabled(false);
+//	// enable
+//	if (v == "mp3")
+//		for (int i = 0; i < mp3Settings.size(); i++)
+//			mp3Settings.at(i)->setEnabled(true);
+//	if (v == "vorbis")
+//		for (int i = 0; i < vorbisSettings.size(); i++)
+//			vorbisSettings.at(i)->setEnabled(true);
 }
 
 void PreferencesDialog::updateStereoSettings(bool stereo) {
@@ -336,21 +330,21 @@ void PreferencesDialog::editPerCallerPreferences() {
 }
 
 void PreferencesDialog::browseOutputPath() {
-	preferences.get(Pref::OutputPath).set(outputPathEdit->text());
-	QFileDialog dialog(this, "Select output path", getOutputPath());
-	dialog.setFileMode(QFileDialog::DirectoryOnly);
-	if (!dialog.exec())
-		return;
-	QStringList list = dialog.selectedFiles();
-	if (!list.size())
-		return;
-	QString path = list.at(0);
-	QString home = QDir::homePath();
-	if (path.startsWith(home + '/') || path == home)
-		path.replace(0, home.size(), '~');
-	if (path.endsWith('/') || path.endsWith('\\'))
-		path.chop(1);
-	outputPathEdit->setText(path);
+//	preferences.get(Pref::OutputPath).set(outputPathEdit->text());
+//	QFileDialog dialog(this, "Select output path", getOutputPath());
+//	dialog.setFileMode(QFileDialog::DirectoryOnly);
+//	if (!dialog.exec())
+//		return;
+//	QStringList list = dialog.selectedFiles();
+//	if (!list.size())
+//		return;
+//	QString path = list.at(0);
+//	QString home = QDir::homePath();
+//	if (path.startsWith(home + '/') || path == home)
+//		path.replace(0, home.size(), '~');
+//	if (path.endsWith('/') || path.endsWith('\\'))
+//		path.chop(1);
+//	outputPathEdit->setText(path);
 }
 
 void PreferencesDialog::updateAbsolutePathWarning(const QString &string) {
@@ -399,7 +393,7 @@ void PreferencesDialog::updatePatternToolTip(const QString &pattern) {
 	tip += fn;
 	if (fn.contains(':'))
 		tip += "\n\nWARNING: Microsoft Windows does not allow colon characters (:) in file names.";
-	patternWidget->setToolTip(tip);
+//	patternWidget->setToolTip(tip);
 }
 
 void PreferencesDialog::closePerCallerDialog() {
@@ -462,32 +456,32 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget *parent) : QDialo
 
 	QSet<QString> seen;
 
-	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
-	for (int i = 0; i < list.count(); i++) {
-		QString sn = list.at(i);
-		if (seen.contains(sn))
-			continue;
-		seen.insert(sn);
-		add(sn, 2, false);
-	}
-
-	list = preferences.get(Pref::AutoRecordAsk).toList();
-	for (int i = 0; i < list.count(); i++) {
-		QString sn = list.at(i);
-		if (seen.contains(sn))
-			continue;
-		seen.insert(sn);
-		add(sn, 1, false);
-	}
-
-	list = preferences.get(Pref::AutoRecordNo).toList();
-	for (int i = 0; i < list.count(); i++) {
-		QString sn = list.at(i);
-		if (seen.contains(sn))
-			continue;
-		seen.insert(sn);
-		add(sn, 0, false);
-	}
+//	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
+//	for (int i = 0; i < list.count(); i++) {
+//		QString sn = list.at(i);
+//		if (seen.contains(sn))
+//			continue;
+//		seen.insert(sn);
+//		add(sn, 2, false);
+//	}
+//
+//	list = preferences.get(Pref::AutoRecordAsk).toList();
+//	for (int i = 0; i < list.count(); i++) {
+//		QString sn = list.at(i);
+//		if (seen.contains(sn))
+//			continue;
+//		seen.insert(sn);
+//		add(sn, 1, false);
+//	}
+//
+//	list = preferences.get(Pref::AutoRecordNo).toList();
+//	for (int i = 0; i < list.count(); i++) {
+//		QString sn = list.at(i);
+//		if (seen.contains(sn))
+//			continue;
+//		seen.insert(sn);
+//		add(sn, 0, false);
+//	}
 
 	model->sort();
 	connect(this, SIGNAL(finished(int)), this, SLOT(save()));
@@ -584,9 +578,9 @@ void PerCallerPreferencesDialog::save() {
 		else if (mode == 2)
 			yes.append(sn);
 	}
-	preferences.get(Pref::AutoRecordYes).set(yes);
-	preferences.get(Pref::AutoRecordAsk).set(ask);
-	preferences.get(Pref::AutoRecordNo).set(no);
+//	preferences.get(Pref::AutoRecordYes).set(yes);
+//	preferences.get(Pref::AutoRecordAsk).set(ask);
+//	preferences.get(Pref::AutoRecordNo).set(no);
 }
 
 // per caller model

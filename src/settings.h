@@ -36,7 +36,7 @@ public:
 	DISABLE_COPY_AND_ASSIGNMENT(Settings);
 private:
 	QSettings pref;
-	QVariant getValue(QString, const QVariant) const;
+	QVariant getValue(const QString& name, const QVariant& default_value);
 	void load();
 	//
 	QVector<FileWriter> file_writers;
@@ -50,38 +50,23 @@ private:
 	bool gui_notify;
 	bool gui_windowed;
 	bool gui_hide_legal_info;
+	bool gui_first_launch;
 public:
 	inline FileWriter fileWriters(int i) const { return file_writers[i]; }
 	inline int audioMp3Quality() const { return audio_mp3_bitrate; }
 	inline int audioOggQuality() const { return audio_ogg_quality; }
 	inline bool autorecEnabled() const { return autorec_enabled; }
 	inline bool autorecAsk() const { return autorec_ask; }
-	inline QString filesDiectory() const { return files_directory; }
+	QString filesDirectory() const;
 	inline QString filesNames() const { return files_names; }
 	inline bool filesTags() const { return files_tags; }
 	inline bool guiNotify() const { return gui_notify; }
 	inline bool guiWindowed() const { return gui_windowed; }
 	inline bool guiHideLegalInfo() const { return gui_hide_legal_info; }
+	inline bool guiFirstLaunch() const { return gui_first_launch; }
+	//
+	void setGuiWindowed(bool v);
+	void setGuiFirstLaunch(bool v);
 };
 
 #endif // SETTINGS_H
-
-//	X(OutputFormat,                output.format)
-//	X(OutputFormatMp3Bitrate,      output.format.mp3.bitrate)
-//	X(OutputFormatVorbisQuality,   output.format.vorbis.quality)
-//	X(OutputStereo,                output.stereo)
-//	X(OutputStereoMix,             output.stereo.mix)
-//	X(SuppressLegalInformation,    suppress.legalinformation)
-//	X(SuppressFirstRunInformation, suppress.firstruninformation)
-
-//	X(OutputSaveTags,              output.savetags)
-//	X(OutputPattern,               output.pattern)
-//	X(AutoRecordDefault,           autorecord.default)
-//	X(AutoRecordAsk,               autorecord.ask)
-//	X(AutoRecordYes,               autorecord.yes)
-//	X(AutoRecordNo,                autorecord.no)
-//	X(OutputPath,                  output.path)
-//	X(PreferencesVersion,          preferences.version)
-//	X(NotifyRecordingStart,        notify.recordingstart)
-//	X(GuiWindowed,                 gui.windowed)
-//	X(DebugWriteSyncFile,          debug.writesyncfile)

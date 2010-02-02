@@ -75,10 +75,9 @@ VorbisWriter::~VorbisWriter() {
 bool VorbisWriter::open(const QString &fn, long sr, bool s) {
 	bool b = AudioFileWriter::open(fn + ".ogg", sr, s);
 
-	if (!b)
-		return false;
+	if (!b) return false;
 
-	int quality = preferences.get(Pref::OutputFormatVorbisQuality).toInt();
+	int quality = settings.audioOggQuality();
 
 	pd = new VorbisWriterPrivateData;
 	vorbis_info_init(&pd->vi);

@@ -37,13 +37,14 @@
 TrayIcon::TrayIcon(QObject *p) : QSystemTrayIcon(p) {
 	setColor(false);
 
-	if (preferences.get(Pref::GuiWindowed).toBool()) {
+	if(settings.guiWindowed())
+	{
 		createMainWindow();
-	} else {
-		if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-			debug("Warning: No system tray detected.  Will check again in 10 seconds.");
-			QTimer::singleShot(10000, this, SLOT(checkTrayPresence()));
-		}
+	}
+	else if (!QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		debug("Warning: No system tray detected.  Will check again in 10 seconds.");
+		QTimer::singleShot(10000, this, SLOT(checkTrayPresence()));
 	}
 
 	smStart = new QSignalMapper(this);
@@ -97,8 +98,9 @@ void TrayIcon::checkTrayPresence() {
 	}
 }
 
-void TrayIcon::setWindowedMode() {
-	preferences.get(Pref::GuiWindowed).set(true);
+void TrayIcon::setWindowedMode()
+{
+	settings.setGuiWindowed(true);
 }
 
 void TrayIcon::setColor(bool color) {
@@ -150,16 +152,18 @@ void TrayIcon::stoppedCall(int id) {
 	updateToolTip();
 }
 
-void TrayIcon::startedRecording(int id) {
-	if (!callMap.contains(id))
-		return;
+void TrayIcon::startedRecording(int id)
+{
+	if (!callMap.contains(id)) return;
+	//
 	CallData &data = callMap[id];
 	data.isRecording = true;
 	data.startAction->setEnabled(false);
 	data.stopAction->setEnabled(true);
 	data.stopAndDeleteAction->setEnabled(true);
-
-	if (supportsMessages() && preferences.get(Pref::NotifyRecordingStart).toBool()) {
+	//
+	if (supportsMessages() && settings.guiNotify())
+	{
 		showMessage("Recording started",
 			QString("The call with %1 is now being recorded.").arg(data.skypeName),
 			Information, 5000);
