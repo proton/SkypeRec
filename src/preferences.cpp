@@ -197,7 +197,7 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 	QWidget* widget = new QWidget(parent);
 	QVBoxLayout* vbox = new QVBoxLayout(widget);
 	//
-	QGridLayout* grid = new QGridLayout(widget);
+	QGridLayout* grid = new QGridLayout();
 	//
 	grid->addWidget(new QLabel("Name", widget), 0, 0);
 	grid->addWidget(new QLabel("Format", widget), 0, 1);
@@ -228,7 +228,7 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 	//
 	vbox->addLayout(grid);
 	//
-	grid = new QGridLayout(widget);
+	grid = new QGridLayout();
 	//
 	QLabel* label = new QLabel("MP3 &bitrate:", widget);
 	mp3QualityWidget = new QComboBox(widget);

@@ -113,7 +113,8 @@ void Recorder::setupCallHandler() {
 	connect(callHandler, SIGNAL(stoppedRecording(int)),             trayIcon, SLOT(stoppedRecording(int)));
 }
 
-void Recorder::about() {
+void Recorder::about()
+{
 	if (!aboutDialog)
 		aboutDialog = new AboutDialog;
 
@@ -134,13 +135,15 @@ void Recorder::openPreferences()
 	preferencesDialog->activateWindow();
 }
 
-void Recorder::closePerCallerDialog() {
+void Recorder::closePerCallerDialog()
+{
 	debug("Hide per-caller dialog");
 	if (preferencesDialog)
 		preferencesDialog->closePerCallerDialog();
 }
 
-void Recorder::browseCalls() {
+void Recorder::browseCalls()
+{
 	QString path(settings.filesDirectory());
 	QDir().mkpath(path);
 	QUrl url = QUrl(QString("file://") + path);
@@ -157,7 +160,8 @@ void Recorder::quitConfirmation()
 	quit();
 }
 
-void Recorder::skypeNotify(const QString &s) {
+void Recorder::skypeNotify(const QString &s)
+{
 	QStringList args = s.split(' ');
 	QString cmd = args.takeFirst();
 	if (cmd == "CALL")
@@ -171,7 +175,8 @@ void Recorder::skypeConnected(bool conn) {
 		debug("skype not connected");
 }
 
-void Recorder::skypeConnectionFailed(const QString &reason) {
+void Recorder::skypeConnectionFailed(const QString &reason)
+{
 	debug("skype connection failed, reason: " + reason);
 
 	QMessageBox::critical(NULL, PROGRAM_NAME " - Error",
@@ -180,7 +185,8 @@ void Recorder::skypeConnectionFailed(const QString &reason) {
 		"Internal reason for failure: %2").arg(PROGRAM_NAME, reason));
 }
 
-void Recorder::debugMessage(const QString &s) {
+void Recorder::debugMessage(const QString &s)
+{
 	std::cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ").toLocal8Bit().constData()
 		<< s.toLocal8Bit().constData() << "\n";
 }

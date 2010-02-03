@@ -31,8 +31,6 @@
 #include <cmath>
 #include <cstring>
 
-#include <QtDebug>
-
 #include "call.h"
 #include "common.h"
 #include "skype.h"
@@ -166,14 +164,16 @@ bool Call::okToDelete() const {
 	return true;
 }
 
-bool Call::statusActive() const {
+bool Call::statusActive() const
+{
 	return status == "INPROGRESS" ||
 		status == "ONHOLD" ||
 		status == "LOCALHOLD" ||
 		status == "REMOTEHOLD";
 }
 
-void Call::setStatus(const QString &s) {
+void Call::setStatus(const QString &s)
+{
 	bool wasActive = statusActive();
 	status = s;
 	bool nowActive = statusActive();
@@ -199,7 +199,8 @@ bool Call::statusDone() const {
 	// TODO: see what the deal is with REDIAL_PENDING (protocol 8)
 }
 
-QString Call::constructFileName() const {
+QString Call::constructFileName() const
+{
 	return getFileName(skypeName, displayName, skype->getSkypeName(),
 		skype->getObject("PROFILE FULLNAME"), timeStartRecording);
 }

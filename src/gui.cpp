@@ -110,24 +110,29 @@ RecordConfirmationDialog::RecordConfirmationDialog(const QString &sn, const QStr
 
 void RecordConfirmationDialog::yesClicked()
 {
-	//TODO:
-//	emit yes();
-//	if (remember->isChecked())
-//		preferences.setPerCallerPreference(skypeName, 2);
-//	accept();
+	emit yes();
+	if (remember->isChecked())
+	{
+		//TODO:
+		//preferences.setPerCallerPreference(skypeName, 2);
+	}
+	accept();
 }
 
 void RecordConfirmationDialog::noClicked()
 {
-	//TODO:
-//	emit no();
-//	if (remember->isChecked())
-//		preferences.setPerCallerPreference(skypeName, 0);
-//	accept();
+	emit no();
+	if (remember->isChecked())
+	{
+		//TODO:
+		//preferences.setPerCallerPreference(skypeName, 0);
+	}
+	accept();
 }
 
-void RecordConfirmationDialog::enableWidgets() {
-	for (int i = 0; i < widgets.size(); i++)
+void RecordConfirmationDialog::enableWidgets()
+{
+	for (int i=0; i < widgets.size(); ++i)
 		widgets.at(i)->setEnabled(true);
 }
 
