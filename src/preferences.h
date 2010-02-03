@@ -34,15 +34,13 @@
 
 #include "settings.h"
 
-//class SmartComboBox;
 class QWidget;
 class QListView;
 class PerCallerModel;
 class PerCallerPreferencesDialog;
 class QRadioButton;
 class QComboBox;
-class SmartEditableComboBox;
-class SmartLineEdit;
+class QLineEdit;
 class QDateTime;
 class QLabel;
 
@@ -59,26 +57,26 @@ protected:
 	void hideEvent(QHideEvent *);
 
 private slots:
-	void updateFormatSettings();
 	void editPerCallerPreferences();
 	void updatePatternToolTip(const QString &);
-	void updateStereoSettings(bool);
 	void browseOutputPath();
 	void updateAbsolutePathWarning(const QString &);
-
-private:
-	QWidget* createRecordingTab();
-	QWidget* createPathTab();
-	QWidget* createFormatTab();
-	QWidget* createMiscTab();
-
-private:
-	QList<QWidget*> mp3Settings;
-	QList<QWidget*> vorbisSettings;
-	QList<QWidget*> stereoSettings;
 	//
+	void setMp3Quality(int index);
+	void setOggQuality(int index);
+
+private:
+	QWidget* createRecordingTab(QWidget* parent);
+	QWidget* createPathTab(QWidget* parent);
+	QWidget* createFormatTab(QWidget* parent);
+	QWidget* createMiscTab(QWidget* parent);
+
+private:
 	QLabel* absolutePathWarningLabel;
 	QComboBox* patternWidget;
+	QLineEdit* filesPathEdit;
+	QComboBox* mp3QualityWidget;
+	QComboBox* oggQualityWidget;
 	//
 	QPointer<PerCallerPreferencesDialog> perCallerDialog;
 

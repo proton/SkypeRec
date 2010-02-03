@@ -82,9 +82,12 @@ public:
 	inline bool guiHideLegalInfo() const { return gui_hide_legal_info; }
 	inline bool guiFirstLaunch() const { return gui_first_launch; }
 public slots:
+	void setAudioMp3Quality(int v);
+	void setAudioOggQuality(int v);
 	void setAutoRecord(int v);
 	void setFilesDirectory(const QString&);
 	void setFilesNames(const QString&);
+	void setFilesTags(bool v);
 	void setGuiNotify(bool v);
 	void setGuiWindowed(bool v);
 	void setGuiFirstLaunch(bool v);

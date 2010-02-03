@@ -64,6 +64,18 @@ QString Settings::filesDirectory() const
 
 //------------------------------------------------------------------------------
 
+void Settings::setAudioMp3Quality(int v)
+{
+	audio_mp3_bitrate = v;
+	pref.setValue("Audio/MP3_Quality", audio_mp3_bitrate);
+}
+
+void Settings::setAudioOggQuality(int v)
+{
+	audio_ogg_quality = v;
+	pref.setValue("Audio/OGG_Quality", audio_ogg_quality);
+}
+
 void Settings::setAutoRecord(int v)
 {
 	autorec_global = AUTO_RECORD_TYPE(v);
@@ -80,6 +92,12 @@ void Settings::setFilesNames(const QString& v)
 {
 	files_names = v;
 	pref.setValue("Files/NameFormat", files_names);
+}
+
+void Settings::setFilesTags(bool v)
+{
+	files_tags = v;
+	pref.setValue("Files/Tags", files_tags);
 }
 
 void Settings::setGuiNotify(bool v)
