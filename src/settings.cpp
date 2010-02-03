@@ -41,8 +41,8 @@ void Settings::load()
 	audio_mp3_bitrate = getValue("Audio/MP3_Quality", 64).toInt();
 	audio_ogg_quality = getValue("Audio/OGG_Quality", 3).toInt();
 	//
-	autorec_enabled = getValue("AutoRecord/Enable", true).toBool();
-	autorec_ask = getValue("AutoRecord/Ask", true).toBool();
+	autorec_global = AUTO_RECORD_TYPE(getValue("AutoRecord/Global", AUTO_RECORD_ASK).toInt());
+	//TODO: fill local vector
 	//
 	files_directory = getValue("Files/Directory", "~/Skype Calls").toString();
 	files_names = getValue("Files/NameFormat", "Calls with &s/Call with &s, %Y-%m-%d, %H:%M:%S - %P").toString();
@@ -63,6 +63,18 @@ QString Settings::filesDirectory() const
 }
 
 //------------------------------------------------------------------------------
+
+void Settings::setAutoRecord(int v)
+{
+	autorec_global = AUTO_RECORD_TYPE(v);
+	pref.setValue("AutoRecord/Global", autorec_global);
+}
+
+void Settings::setGuiNotify(bool v)
+{
+	gui_notify = v;
+	pref.setValue("Gui/Notify", gui_notify);
+}
 
 void Settings::setGuiWindowed(bool v)
 {

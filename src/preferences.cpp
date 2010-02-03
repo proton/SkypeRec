@@ -26,6 +26,8 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QRadioButton>
+#include <QButtonGroup>
+#include <QCheckBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QListView>
@@ -36,7 +38,6 @@
 #include <QtAlgorithms>
 #include <QDateTime>
 #include <QList>
-#include <QFileIconProvider>
 #include <QFileDialog>
 #include <QTabWidget>
 #include <ctime>
@@ -45,14 +46,12 @@
 #include "common.h"
 #include "recorder.h"
 
-namespace
+QString escape(const QString &s)
 {
-	QString escape(const QString &s){
-	QString out = s;
+	QString out(s);
 	out.replace('%', "%%");
 	out.replace('/', '_');
 	return out;
-}
 }
 
 QString getFileName(const QString &skypeName, const QString &displayName,
@@ -93,31 +92,43 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 
 // preferences dialog
 
-static QVBoxLayout *makeVFrame(QVBoxLayout *parentLayout, const char *title) {
+static QVBoxLayout *makeVFrame(QVBoxLayout *parentLayout, const char *title)
+{
 	QGroupBox *box = new QGroupBox(title);
 	QVBoxLayout *vbox = new QVBoxLayout(box);
 	parentLayout->addWidget(box);
 	return vbox;
 }
 
-QWidget *PreferencesDialog::createRecordingTab() {
+QWidget *PreferencesDialog::createRecordingTab()
+{
 	QWidget *widget = new QWidget;
 	QVBoxLayout *vbox = new QVBoxLayout(widget);
+	//
+	QButtonGroup* group = new QButtonGroup(vbox);
+	QRadioButton* radio = new QRadioButton("Automatically &record all calls", widget);
+	group->addButton(radio, AUTO_RECORD_ON);
+	vbox->addWidget(radio);
+	radio = new QRadioButton("&Ask for every call", widget);
+	group->addButton(radio, AUTO_RECORD_ASK);
+	vbox->addWidget(radio);
+	radio = new QRadioButton("Do &not automatically record calls", widget);
+	group->addButton(radio, AUTO_RECORD_OFF);
+	vbox->addWidget(radio);
+	//
+	int auto_rec = settings.autoRecord();
+	group->button(auto_rec)->setChecked(true);
+	//
+	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecord(int)));
 
-//	Preference &preference = preferences.get(Pref::AutoRecordDefault);
-//	SmartRadioButton *radio = new SmartRadioButton("Automatically &record all calls", preference, "yes");
-//	vbox->addWidget(radio);
-//	radio = new SmartRadioButton("&Ask for every call", preference, "ask");
-//	vbox->addWidget(radio);
-//	radio = new SmartRadioButton("Do &not automatically record calls", preference, "no");
-//	vbox->addWidget(radio);
-//
-//	QPushButton *button = new QPushButton("Edit &per caller preferences");
-//	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
-//	vbox->addWidget(button);
-//
-//	SmartCheckBox *check = new SmartCheckBox("Show &balloon notification when recording starts", preferences.get(Pref::NotifyRecordingStart));
-//	vbox->addWidget(check);
+	QPushButton *button = new QPushButton("Edit &per caller preferences");
+	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
+	vbox->addWidget(button);
+
+	QCheckBox *check = new QCheckBox("Show &balloon notification when recording starts", widget);
+	check->setChecked(settings.guiNotify());
+	connect(button, SIGNAL(toggled(bool)), &settings, SLOT(setGuiNotify(bool)));
+	vbox->addWidget(check);
 
 	vbox->addStretch();
 	return widget;

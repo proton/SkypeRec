@@ -3,6 +3,7 @@
 
 #include <QSettings>
 #include <QVector>
+#include <QObject>
 
 #include "common.h"
 
@@ -22,6 +23,13 @@ enum FILE_WRITER_ID
 	FILE_WRITER_COUNT
 };
 
+enum AUTO_RECORD_TYPE
+{
+	AUTO_RECORD_ON,
+	AUTO_RECORD_ASK,
+	AUTO_RECORD_OFF
+};
+
 struct FileWriter
 {
 	AUDIO_FORMAT format;
@@ -29,8 +37,15 @@ struct FileWriter
 	bool enabled;
 };
 
-class Settings
+struct AutoRecord
 {
+	AUTO_RECORD_TYPE format;
+	QString name;
+};
+
+class Settings : public QObject
+{
+	Q_OBJECT
 public:
 	Settings();
 	DISABLE_COPY_AND_ASSIGNMENT(Settings);
@@ -42,8 +57,10 @@ private:
 	QVector<FileWriter> file_writers;
 	int audio_mp3_bitrate;
 	int audio_ogg_quality;
-	bool autorec_enabled;
-	bool autorec_ask;
+	AUTO_RECORD_TYPE autorec_global;
+	QVector<AutoRecord> autorec_local;
+//	bool autorec_enabled;
+//	bool autorec_ask;
 	QString files_directory;
 	QString files_names;
 	bool files_tags;
@@ -55,8 +72,8 @@ public:
 	inline FileWriter fileWriters(int i) const { return file_writers[i]; }
 	inline int audioMp3Quality() const { return audio_mp3_bitrate; }
 	inline int audioOggQuality() const { return audio_ogg_quality; }
-	inline bool autorecEnabled() const { return autorec_enabled; }
-	inline bool autorecAsk() const { return autorec_ask; }
+	inline AUTO_RECORD_TYPE autoRecord() const { return autorec_global; }
+	inline AutoRecord autoRecord(int i) const { return autorec_local[i]; }
 	QString filesDirectory() const;
 	inline QString filesNames() const { return files_names; }
 	inline bool filesTags() const { return files_tags; }
@@ -64,9 +81,13 @@ public:
 	inline bool guiWindowed() const { return gui_windowed; }
 	inline bool guiHideLegalInfo() const { return gui_hide_legal_info; }
 	inline bool guiFirstLaunch() const { return gui_first_launch; }
-	//
+public slots:
+	void setAutoRecord(int v);
+	void setGuiNotify(bool v);
 	void setGuiWindowed(bool v);
 	void setGuiFirstLaunch(bool v);
 };
+
+extern Settings settings;
 
 #endif // SETTINGS_H
