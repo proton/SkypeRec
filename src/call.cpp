@@ -347,9 +347,9 @@ void Call::startRecording(bool force) {
 		FileWriter fw = settings.fileWriters(i);
 		switch(fw.format)
 		{
-			case AUDIO_FORMAT_WAV: writers[i] = new WaveWriter();
-			case AUDIO_FORMAT_MP3: writers[i] = new Mp3Writer();
-			case AUDIO_FORMAT_OGG: writers[i] = new VorbisWriter();
+			case AUDIO_FORMAT_WAV: writers[i] = new WaveWriter(); break;
+			case AUDIO_FORMAT_MP3: writers[i] = new Mp3Writer(); break;
+			case AUDIO_FORMAT_OGG: writers[i] = new VorbisWriter(); break;
 		}
 		if(settings.filesTags()) writers[i]->setTags(constructCommentTag(FILE_WRITER_ID(i)), timeStartRecording);
 		files_are_open = writers[i]->open(fn+fw.postfix, skypeSamplingRate, writer_stereo(FILE_WRITER_ID(i)));
