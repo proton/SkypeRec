@@ -69,13 +69,13 @@ private:
 	bool gui_hide_legal_info;
 	bool gui_first_launch;
 public:
-	inline FileWriter fileWriters(int i) const { return file_writers[i]; }
+	inline const FileWriter& fileWriters(int i) const { return file_writers[i]; }
 	inline int audioMp3Quality() const { return audio_mp3_bitrate; }
 	inline int audioOggQuality() const { return audio_ogg_quality; }
 	inline AUTO_RECORD_TYPE autoRecord() const { return autorec_global; }
 	inline AutoRecord autoRecord(int i) const { return autorec_local[i]; }
 	QString filesDirectory() const;
-	inline QString filesNames() const { return files_names; }
+	inline const QString& filesNames() const { return files_names; }
 	inline bool filesTags() const { return files_tags; }
 	inline bool guiNotify() const { return gui_notify; }
 	inline bool guiWindowed() const { return gui_windowed; }
@@ -83,6 +83,8 @@ public:
 	inline bool guiFirstLaunch() const { return gui_first_launch; }
 public slots:
 	void setAutoRecord(int v);
+	void setFilesDirectory(const QString&);
+	void setFilesNames(const QString&);
 	void setGuiNotify(bool v);
 	void setGuiWindowed(bool v);
 	void setGuiFirstLaunch(bool v);

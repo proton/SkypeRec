@@ -40,6 +40,7 @@ class QListView;
 class PerCallerModel;
 class PerCallerPreferencesDialog;
 class QRadioButton;
+class QComboBox;
 class SmartEditableComboBox;
 class SmartLineEdit;
 class QDateTime;
@@ -62,26 +63,24 @@ private slots:
 	void editPerCallerPreferences();
 	void updatePatternToolTip(const QString &);
 	void updateStereoSettings(bool);
-	void updateStereoMixLabel(int);
 	void browseOutputPath();
 	void updateAbsolutePathWarning(const QString &);
 
 private:
-	QWidget *createRecordingTab();
-	QWidget *createPathTab();
-	QWidget *createFormatTab();
-	QWidget *createMiscTab();
+	QWidget* createRecordingTab();
+	QWidget* createPathTab();
+	QWidget* createFormatTab();
+	QWidget* createMiscTab();
 
 private:
-	QList<QWidget *> mp3Settings;
-	QList<QWidget *> vorbisSettings;
-	QList<QWidget *> stereoSettings;
-	SmartLineEdit *outputPathEdit;
-	//SmartComboBox *formatWidget;
+	QList<QWidget*> mp3Settings;
+	QList<QWidget*> vorbisSettings;
+	QList<QWidget*> stereoSettings;
+	//
+	QLabel* absolutePathWarningLabel;
+	QComboBox* patternWidget;
+	//
 	QPointer<PerCallerPreferencesDialog> perCallerDialog;
-	SmartEditableComboBox *patternWidget;
-	QLabel *stereoMixLabel;
-	QLabel *absolutePathWarningLabel;
 
 	DISABLE_COPY_AND_ASSIGNMENT(PreferencesDialog);
 };
@@ -92,7 +91,7 @@ class PerCallerPreferencesDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	PerCallerPreferencesDialog(QWidget *);
+	PerCallerPreferencesDialog(QWidget* );
 
 private slots:
 	void add(const QString & = QString(), int = 1, bool = true);

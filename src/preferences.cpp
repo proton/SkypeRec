@@ -28,6 +28,8 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QLineEdit>
+#include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QListView>
@@ -92,18 +94,18 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 
 // preferences dialog
 
-static QVBoxLayout *makeVFrame(QVBoxLayout *parentLayout, const char *title)
+static QVBoxLayout* makeVFrame(QVBoxLayout* parentLayout, const char* title)
 {
 	QGroupBox *box = new QGroupBox(title);
-	QVBoxLayout *vbox = new QVBoxLayout(box);
+	QVBoxLayout* vbox = new QVBoxLayout(box);
 	parentLayout->addWidget(box);
 	return vbox;
 }
 
-QWidget *PreferencesDialog::createRecordingTab()
+QWidget* PreferencesDialog::createRecordingTab()
 {
-	QWidget *widget = new QWidget;
-	QVBoxLayout *vbox = new QVBoxLayout(widget);
+	QWidget* widget = new QWidget;
+	QVBoxLayout* vbox = new QVBoxLayout(widget);
 	//
 	QButtonGroup* group = new QButtonGroup(vbox);
 	QRadioButton* radio = new QRadioButton("Automatically &record all calls", widget);
@@ -121,11 +123,11 @@ QWidget *PreferencesDialog::createRecordingTab()
 	//
 	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecord(int)));
 
-	QPushButton *button = new QPushButton("Edit &per caller preferences");
+	QPushButton* button = new QPushButton("Edit &per caller preferences", widget);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
 	vbox->addWidget(button);
 
-	QCheckBox *check = new QCheckBox("Show &balloon notification when recording starts", widget);
+	QCheckBox* check = new QCheckBox("Show &balloon notification when recording starts", widget);
 	check->setChecked(settings.guiNotify());
 	connect(button, SIGNAL(toggled(bool)), &settings, SLOT(setGuiNotify(bool)));
 	vbox->addWidget(check);
@@ -134,51 +136,55 @@ QWidget *PreferencesDialog::createRecordingTab()
 	return widget;
 }
 
-QWidget *PreferencesDialog::createPathTab() {
-	QWidget *widget = new QWidget;
-//	QVBoxLayout *vbox = new QVBoxLayout(widget);
-//
-//	QLabel *label = new QLabel("&Save recorded calls here:");
-//	outputPathEdit = new SmartLineEdit(preferences.get(Pref::OutputPath));
-//	label->setBuddy(outputPathEdit);
-//	connect(outputPathEdit, SIGNAL(textChanged(const QString &)), this, SLOT(updateAbsolutePathWarning(const QString &)));
-//	QPushButton *button = new QPushButton(QFileIconProvider().icon(QFileIconProvider::Folder), "Browse");
-//	connect(button, SIGNAL(clicked(bool)), this, SLOT(browseOutputPath()));
-//	QHBoxLayout *hbox = new QHBoxLayout;
-//	hbox->addWidget(outputPathEdit);
-//	hbox->addWidget(button);
-//	vbox->addWidget(label);
-//	vbox->addLayout(hbox);
-//
-//	label = new QLabel("File &name:");
-//	patternWidget = new SmartEditableComboBox(preferences.get(Pref::OutputPattern));
-//	label->setBuddy(patternWidget);
-//	patternWidget->addItem("%Y-%m-%d %H:%M:%S Call with &s");
-//	patternWidget->addItem("Call with &s, %a %b %d %Y, %H:%M:%S");
-//	patternWidget->addItem("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S");
-//	patternWidget->addItem("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S");
-//	patternWidget->setupDone();
-//	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
-//	vbox->addWidget(label);
-//	vbox->addWidget(patternWidget);
-//
-//	vbox->addStretch();
-//
-//	absolutePathWarningLabel = new QLabel("<b>Warning:</b> The path you have entered is not an absolute path!");
-//	vbox->addWidget(absolutePathWarningLabel);
-//
-//	updatePatternToolTip("");
-//	updateAbsolutePathWarning(preferences.get(Pref::OutputPath).toString());
-
+QWidget* PreferencesDialog::createPathTab() {
+	QWidget* widget = new QWidget;
+	QVBoxLayout* vbox = new QVBoxLayout(widget);
+	//
+	QLabel* label = new QLabel("&Save recorded calls here:", widget);
+	QLineEdit* filesPathEdit = new QLineEdit(settings.filesDirectory(), widget);
+	label->setBuddy(filesPathEdit);
+	//
+	connect(filesPathEdit, SIGNAL(textChanged(const QString &)), this, SLOT(updateAbsolutePathWarning(const QString &)));
+	//
+	QPushButton* button = new QPushButton("...", widget);
+	connect(button, SIGNAL(clicked(bool)), this, SLOT(browseOutputPath()));
+	QHBoxLayout *hbox = new QHBoxLayout;
+	hbox->addWidget(filesPathEdit);
+	hbox->addWidget(button);
+	vbox->addWidget(label);
+	vbox->addLayout(hbox);
+	//
+	label = new QLabel("File &name:");
+	patternWidget = new QComboBox(widget);
+	patternWidget->setEditable(true);
+	patternWidget->setEditText(settings.filesNames());
+	label->setBuddy(patternWidget);
+	patternWidget->addItem("%Y-%m-%d %H:%M:%S Call with &s - %P");
+	patternWidget->addItem("Call with &s, %a %b %d %Y, %H:%M:%S - %P");
+	patternWidget->addItem("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S - %P");
+	patternWidget->addItem("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S - %P");
+	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
+	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), &settings, SLOT(setFilesNames(const QString &)));
+	vbox->addWidget(label);
+	vbox->addWidget(patternWidget);
+	//
+	vbox->addStretch();
+	//
+	absolutePathWarningLabel = new QLabel("<b>Warning:</b> The path you have entered is not an absolute path!", widget);
+	vbox->addWidget(absolutePathWarningLabel);
+	//
+	updatePatternToolTip("");
+	updateAbsolutePathWarning(settings.filesDirectory());
+	//
 	return widget;
 }
 
-QWidget *PreferencesDialog::createFormatTab() {
-	QWidget *widget = new QWidget;
-//	QVBoxLayout *vbox = new QVBoxLayout(widget);
+QWidget* PreferencesDialog::createFormatTab() {
+	QWidget* widget = new QWidget;
+//	QVBoxLayout* vbox = new QVBoxLayout(widget);
 //	QGridLayout *grid = new QGridLayout;
 //
-//	QLabel *label = new QLabel("Fil&e format:");
+//	QLabel* label = new QLabel("Fil&e format:");
 //	formatWidget = new SmartComboBox(preferences.get(Pref::OutputFormat));
 //	label->setBuddy(formatWidget);
 //	formatWidget->addItem("WAV PCM", "wav");
@@ -267,9 +273,9 @@ QWidget *PreferencesDialog::createFormatTab() {
 	return widget;
 }
 
-QWidget *PreferencesDialog::createMiscTab() {
-	QWidget *widget = new QWidget;
-//	QVBoxLayout *vbox = new QVBoxLayout(widget);
+QWidget* PreferencesDialog::createMiscTab() {
+	QWidget* widget = new QWidget;
+//	QVBoxLayout* vbox = new QVBoxLayout(widget);
 //
 //	SmartCheckBox *check = new SmartCheckBox("&Display a small main window.  Enable this if your\n"
 //		"environment does not provide a system tray (needs restart)", preferences.get(Pref::GuiWindowed));
@@ -283,7 +289,7 @@ PreferencesDialog::PreferencesDialog() {
 	setWindowTitle(PROGRAM_NAME " - Preferences");
 	setAttribute(Qt::WA_DeleteOnClose);
 
-	QVBoxLayout *vbox = new QVBoxLayout(this);
+	QVBoxLayout* vbox = new QVBoxLayout(this);
 	vbox->setSizeConstraint(QLayout::SetFixedSize);
 
 	QTabWidget *tabWidget = new QTabWidget;
@@ -296,7 +302,7 @@ PreferencesDialog::PreferencesDialog() {
 	tabWidget->setUsesScrollButtons(false);
 
 	QHBoxLayout *hbox = new QHBoxLayout;
-	QPushButton *button = new QPushButton("&Close");
+	QPushButton* button = new QPushButton("&Close");
 	button->setDefault(true);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(accept()));
 	hbox->addStretch();
@@ -330,13 +336,7 @@ void PreferencesDialog::updateStereoSettings(bool stereo) {
 			stereoSettings.at(i)->setEnabled(true);
 		else
 			stereoSettings.at(i)->setEnabled(false);
-}
-
-void PreferencesDialog::updateStereoMixLabel(int value) {
-	stereoMixLabel->setText(QString("Stereo mi&x: (left channel: local %1%, remote %2%)").arg(100 - value).arg(value));
-}
-
-void PreferencesDialog::editPerCallerPreferences() {
+}void PreferencesDialog::editPerCallerPreferences() {
 	perCallerDialog = new PerCallerPreferencesDialog(this);
 }
 
@@ -358,11 +358,14 @@ void PreferencesDialog::browseOutputPath() {
 //	outputPathEdit->setText(path);
 }
 
-void PreferencesDialog::updateAbsolutePathWarning(const QString &string) {
+void PreferencesDialog::updateAbsolutePathWarning(const QString &string)
+{
 	if (string.startsWith('/') || string.startsWith("~/") || string == "~")
+	{
 		absolutePathWarningLabel->hide();
-	else
-		absolutePathWarningLabel->show();
+		settings.setFilesDirectory(string);
+	}
+	else absolutePathWarningLabel->show();
 }
 
 void PreferencesDialog::hideEvent(QHideEvent *event) {
@@ -414,7 +417,7 @@ void PreferencesDialog::closePerCallerDialog() {
 
 // per caller preferences editor
 
-PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget *parent) : QDialog(parent) {
+PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialog(parent) {
 	setWindowTitle("Per Caller Preferences");
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -422,7 +425,7 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget *parent) : QDialo
 	model = new PerCallerModel(this);
 
 	QHBoxLayout *bighbox = new QHBoxLayout(this);
-	QVBoxLayout *vbox = new QVBoxLayout;
+	QVBoxLayout* vbox = new QVBoxLayout;
 
 	listWidget = new QListView;
 	listWidget->setModel(model);
@@ -431,7 +434,7 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget *parent) : QDialo
 	connect(listWidget->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selectionChanged()));
 	vbox->addWidget(listWidget);
 
-	QVBoxLayout *frame = makeVFrame(vbox, "Preference for selected Skype names:");
+	QVBoxLayout* frame = makeVFrame(vbox, "Preference for selected Skype names:");
 	radioYes = new QRadioButton("Automatically &record calls");
 	radioAsk = new QRadioButton("&Ask every time");
 	radioNo  = new QRadioButton("Do &not automatically record calls");
@@ -446,7 +449,7 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget *parent) : QDialo
 
 	vbox = new QVBoxLayout;
 
-	QPushButton *button = new QPushButton("A&dd");
+	QPushButton* button = new QPushButton("A&dd");
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(add()));
 	vbox->addWidget(button);
 
@@ -601,7 +604,7 @@ int PerCallerModel::rowCount(const QModelIndex &) const {
 }
 
 namespace {
-	const char *PerCallerModel_data_table[3] = {
+	const char* PerCallerModel_data_table[3] = {
 		"Don't record", "Ask", "Automatic"
 	};
 }

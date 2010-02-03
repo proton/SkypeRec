@@ -70,6 +70,18 @@ void Settings::setAutoRecord(int v)
 	pref.setValue("AutoRecord/Global", autorec_global);
 }
 
+void Settings::setFilesDirectory(const QString& v)
+{
+	files_directory = v;
+	pref.setValue("Files/Directory", files_directory);
+}
+
+void Settings::setFilesNames(const QString& v)
+{
+	files_names = v;
+	pref.setValue("Files/NameFormat", files_names);
+}
+
 void Settings::setGuiNotify(bool v)
 {
 	gui_notify = v;
