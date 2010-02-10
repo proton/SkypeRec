@@ -238,30 +238,11 @@ QString Call::constructCommentTag(FILE_WRITER_ID id) const
 
 void Call::setShouldRecord()
 {
-	// this sets shouldRecord based on preferences.  shouldRecord is 0 if
-	// the call should not be recorded, 1 if we should ask and 2 if we
-	// should record
+	// this sets shouldRecord based on preferences.
+	// shouldRecord is AUTO_RECORD_OFF if the call should not be recorded,
+	// AUTO_RECORD_ASK if we should ask and AUTO_RECORD_ON if we should record
 
-//TODO:
-//	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
-//	if (list.contains(skypeName)) {
-//		shouldRecord = 2;
-//		return;
-//	}
-//
-//	list = preferences.get(Pref::AutoRecordAsk).toList();
-//	if (list.contains(skypeName)) {
-//		shouldRecord = 1;
-//		return;
-//	}
-//
-//	list = preferences.get(Pref::AutoRecordNo).toList();
-//	if (list.contains(skypeName)) {
-//		shouldRecord = 0;
-//		return;
-//	}
-//
-	shouldRecord = settings.autoRecord();
+	shouldRecord = settings.autoRecord(skypeName);
 }
 
 void Call::ask()
@@ -290,7 +271,6 @@ void Call::denyRecording()
 {
 	// note that the call might already be finished by now
 	shouldRecord = AUTO_RECORD_OFF;
-	//TODO: stopRecording delete writers, so we can't ask filename
 	stopRecording(true);
 	removeFiles();
 	removeWriters();
