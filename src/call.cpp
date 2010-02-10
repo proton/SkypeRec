@@ -98,7 +98,7 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	id(i),
 	status("UNKNOWN"),
 	isRecording(false),
-	shouldRecord(1),
+	shouldRecord(AUTO_RECORD_ASK),
 	sync(100 * 2 * 3, 320) // approx 3 seconds
 {
 	writers.fill(NULL, FILE_WRITER_COUNT);
@@ -112,13 +112,15 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	// and ask if we're unsure
 
 	skypeName = skype->getObject(QString("CALL %1 PARTNER_HANDLE").arg(id));
-	if (skypeName.isEmpty()) {
+	if (skypeName.isEmpty())
+	{
 		debug(QString("Call %1: cannot get partner handle").arg(id));
 		skypeName = "UnknownCaller";
 	}
 
 	displayName = skype->getObject(QString("CALL %1 PARTNER_DISPNAME").arg(id));
-	if (displayName.isEmpty()) {
+	if (displayName.isEmpty())
+	{
 		debug(QString("Call %1: cannot get partner display name").arg(id));
 		displayName = "Unnamed Caller";
 	}
@@ -131,7 +133,8 @@ Call::Call(CallHandler *h, Skype *sk, CallID i) :
 	updateConfID();
 }
 
-Call::~Call() {
+Call::~Call()
+{
 	debug(QString("Call %1: Call object destructed").arg(id));
 
 	if (isRecording)
@@ -144,11 +147,13 @@ Call::~Call() {
 	// QT takes care of deleting servers and sockets
 }
 
-void Call::updateConfID() {
+void Call::updateConfID()
+{
 	confID = skype->getObject(QString("CALL %1 CONF_ID").arg(id)).toLong();
 }
 
-bool Call::okToDelete() const {
+bool Call::okToDelete() const
+{
 	// this is used for checking whether past calls may now be deleted.
 	// when a past call hasn't been decided yet whether it should have been
 	// recorded, then it may not be deleted until the decision has been
@@ -188,7 +193,8 @@ void Call::setStatus(const QString &s)
 	}
 }
 
-bool Call::statusDone() const {
+bool Call::statusDone() const
+{
 	return status == "BUSY" ||
 		status == "CANCELLED" ||
 		status == "FAILED" ||
@@ -230,7 +236,8 @@ QString Call::constructCommentTag(FILE_WRITER_ID id) const
 	return str.arg(skypeName, dn1, skype->getSkypeName(), dn2, did);
 }
 
-void Call::setShouldRecord() {
+void Call::setShouldRecord()
+{
 	// this sets shouldRecord based on preferences.  shouldRecord is 0 if
 	// the call should not be recorded, 1 if we should ask and 2 if we
 	// should record
@@ -254,49 +261,57 @@ void Call::setShouldRecord() {
 //		return;
 //	}
 //
-//	QString def = preferences.get(Pref::AutoRecordDefault).toString();
-//	if (def == "yes")
-//		shouldRecord = 2;
-//	else if (def == "ask")
-//		shouldRecord = 1;
-//	else if (def == "no")
-//		shouldRecord = 0;
-//	else
-//		shouldRecord = 1;
+	shouldRecord = settings.autoRecord();
 }
 
-void Call::ask() {
+void Call::ask()
+{
 	confirmation = new RecordConfirmationDialog(skypeName, displayName);
 	connect(confirmation, SIGNAL(yes()), this, SLOT(confirmRecording()));
 	connect(confirmation, SIGNAL(no()), this, SLOT(denyRecording()));
 }
 
-void Call::hideConfirmation(int should) {
-	if (confirmation) {
+void Call::hideConfirmation(AUTO_RECORD_TYPE should)
+{
+	if (confirmation)
+	{
 		delete confirmation;
 		shouldRecord = should;
 	}
 }
 
-void Call::confirmRecording() {
-	shouldRecord = 2;
+void Call::confirmRecording()
+{
+	shouldRecord = AUTO_RECORD_ON;
 	emit showLegalInformation();
 }
 
-void Call::denyRecording() {
+void Call::denyRecording()
+{
 	// note that the call might already be finished by now
-	shouldRecord = 0;
+	shouldRecord = AUTO_RECORD_OFF;
+	//TODO: stopRecording delete writers, so we can't ask filename
 	stopRecording(true);
 	removeFiles();
+	removeWriters();
 }
 
 void Call::removeFiles()
 {
 	for(int i=0; i<writers.count(); ++i)
+	if(writers[i]!=NULL)
 	{
 		const QString fileName = writers[i]->fileName();
 		debug(QString("Removing '%1'").arg(fileName));
 		QFile::remove(fileName);
+	}
+}
+
+void Call::removeWriters()
+{
+	for(int i=0; i<writers.count(); ++i)
+	{
+		if(writers[i]!=NULL) delete writers[i];
 	}
 }
 
@@ -309,9 +324,9 @@ inline bool writer_stereo(FILE_WRITER_ID id)
 	}
 }
 
-void Call::startRecording(bool force) {
-	if (force)
-		hideConfirmation(2);
+void Call::startRecording(bool force)
+{
+	if (force) hideConfirmation(AUTO_RECORD_ON);
 
 	if (isRecording)
 		return;
@@ -321,16 +336,16 @@ void Call::startRecording(bool force) {
 		return;
 	}
 
-	if (force) {
-		emit showLegalInformation();
-	} else {
+	if (force) emit showLegalInformation();
+	else
+	{
 		setShouldRecord();
-		if (shouldRecord == 0)
-			return;
-		if (shouldRecord == 1)
-			ask();
-		else // shouldRecord == 2
-			emit showLegalInformation();
+		switch(shouldRecord)
+		{
+			case AUTO_RECORD_OFF: return;
+			case AUTO_RECORD_ASK: ask(); break;
+			case AUTO_RECORD_ON: showLegalInformation(); break;
+		}
 	}
 
 	debug(QString("Call %1: start recording").arg(id));
@@ -362,7 +377,7 @@ void Call::startRecording(bool force) {
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
 		removeFiles();
-		for(int i=0; i<writers.count(); ++i) if(writers[i]!=NULL) delete writers[i];
+		removeWriters();
 		return;
 	}
 
@@ -385,7 +400,7 @@ void Call::startRecording(bool force) {
 		box->setAttribute(Qt::WA_DeleteOnClose);
 		box->show();
 		removeFiles();
-		for(int i=0; i<writers.count(); ++i) delete writers[i];
+		removeWriters();
 		delete serverRemote;
 		delete serverLocal;
 		return;
@@ -402,7 +417,8 @@ void Call::startRecording(bool force) {
 	emit startedRecording(id);
 }
 
-void Call::acceptLocal() {
+void Call::acceptLocal()
+{
 	socketLocal = serverLocal->nextPendingConnection();
 	serverLocal->close();
 	// we don't delete the server, since it contains the socket.
@@ -411,27 +427,31 @@ void Call::acceptLocal() {
 	connect(socketLocal, SIGNAL(disconnected()), this, SLOT(checkConnections()));
 }
 
-void Call::acceptRemote() {
+void Call::acceptRemote()
+{
 	socketRemote = serverRemote->nextPendingConnection();
 	serverRemote->close();
 	connect(socketRemote, SIGNAL(readyRead()), this, SLOT(readRemote()));
 	connect(socketRemote, SIGNAL(disconnected()), this, SLOT(checkConnections()));
 }
 
-void Call::readLocal() {
+void Call::readLocal()
+{
 	bufferLocal += socketLocal->readAll();
 	if (isRecording)
 		tryToWrite();
 }
 
-void Call::readRemote() {
+void Call::readRemote()
+{
 	bufferRemote += socketRemote->readAll();
 	if (isRecording)
 		tryToWrite();
 }
 
-void Call::checkConnections() {
-	if (socketLocal->state() == QAbstractSocket::UnconnectedState && socketRemote->state() == QAbstractSocket::UnconnectedState) {
+void Call::checkConnections()
+{
+	if (socketLocal->state() == QAbstractSocket::UnconnectedState && socketRemote->state() == QAbstractSocket::UnconnectedState)		{
 		debug(QString("Call %1: both connections closed, stop recording").arg(id));
 		stopRecording();
 	}
@@ -483,7 +503,8 @@ void Call::doSync(long s) {
 	}
 }
 
-void Call::tryToWrite(bool flush) {
+void Call::tryToWrite(bool flush)
+{
 	//debug(QString("Situation: %3, %4").arg(bufferLocal.size()).arg(bufferRemote.size()));
 
 	long samples; // number of samples to write
@@ -566,9 +587,9 @@ void Call::tryToWrite(bool flush) {
 	// ahead.
 }
 
-void Call::stopRecording(bool flush) {
-	if (!isRecording)
-		return;
+void Call::stopRecording(bool flush)
+{
+	if (!isRecording) return;
 
 	debug(QString("Call %1: stop recording").arg(id));
 
@@ -586,7 +607,6 @@ void Call::stopRecording(bool flush) {
 	for(int i=0; i<writers.count(); ++i)
 	{
 		writers[i]->close();
-		delete writers[i];
 	}
 
 	if (syncFile.isOpen()) syncFile.close();
@@ -690,42 +710,42 @@ void CallHandler::prune() {
 	}
 }
 
-void CallHandler::startRecording(int id) {
+void CallHandler::startRecording(int id)
+{
 	if (!calls.contains(id))
 		return;
 
 	calls[id]->startRecording(true);
 }
 
-void CallHandler::stopRecording(int id) {
-	if (!calls.contains(id))
-		return;
+void CallHandler::stopRecording(int id)
+{
+	if (!calls.contains(id)) return;
 
 	Call *call = calls[id];
 	call->stopRecording();
-	call->hideConfirmation(2);
+	call->hideConfirmation(AUTO_RECORD_OFF);
 }
 
-void CallHandler::stopRecordingAndDelete(int id) {
-	if (!calls.contains(id))
-		return;
+void CallHandler::stopRecordingAndDelete(int id)
+{
+	if (!calls.contains(id)) return;
 
 	Call *call = calls[id];
 	call->stopRecording();
 	call->removeFiles();
-	call->hideConfirmation(0);
+	call->removeWriters();
+	call->hideConfirmation(AUTO_RECORD_OFF);
 }
 
 void CallHandler::showLegalInformation()
 {
-	//TODO:
-//	if (preferences.get(Pref::SuppressLegalInformation).toBool())
-//		return;
-//
-//	if (!legalInformationDialog)
-//		legalInformationDialog = new LegalInformationDialog;
-//
-//	legalInformationDialog->raise();
-//	legalInformationDialog->activateWindow();
+	if(settings.guiHideLegalInfo()) return;
+
+	if (!legalInformationDialog)
+		legalInformationDialog = new LegalInformationDialog;
+
+	legalInformationDialog->raise();
+	legalInformationDialog->activateWindow();
 }
 

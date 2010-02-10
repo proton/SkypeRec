@@ -329,7 +329,8 @@ void NoSystemTrayDialog::buttonDoQuit() {
 
 // ---- MainWindow
 
-MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
+MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
+{
 	setWindowTitle(PROGRAM_NAME);
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -343,7 +344,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 	show();
 }
 
-void MainWindow::setColor(bool color) {
+void MainWindow::setColor(bool color)
+{
 	button->setIcon(QIcon(color ? ":/res/tray.png" : ":/res/tray-gray.png"));
 }
 

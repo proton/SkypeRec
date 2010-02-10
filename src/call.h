@@ -87,8 +87,9 @@ public:
 	CallID getID() const { return id; }
 	CallID getConfID() const { return confID; }
 	void removeFiles();
-	void hideConfirmation(int);
-	bool getIsRecording() const { return isRecording; }
+	void removeWriters();
+	void hideConfirmation(AUTO_RECORD_TYPE);
+	inline bool getIsRecording() const { return isRecording; }
 
 signals:
 	void startedCall(int, const QString &);
@@ -119,7 +120,7 @@ private:
 	bool isRecording;
 	int stereo;
 	int stereoMix;
-	int shouldRecord;
+	AUTO_RECORD_TYPE shouldRecord;
 	QPointer<QObject> confirmation;
 	QDateTime timeStartRecording;
 
