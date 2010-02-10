@@ -41,8 +41,14 @@ void Settings::load()
 	audio_mp3_bitrate = getValue("Audio/MP3_Quality", 64).toInt();
 	audio_ogg_quality = getValue("Audio/OGG_Quality", 3).toInt();
 	//
-	autorec_global = AUTO_RECORD_TYPE(getValue("AutoRecord/Global", AUTO_RECORD_ASK).toInt());
-	//TODO: fill local vector
+	pref.beginGroup("AutoRecord");
+	QStringList autorec_keys = pref.childKeys();
+	for(int i=0; i<autorec_keys.size(); ++i)
+	{
+		autorec[autorec_keys[i]] = AUTO_RECORD_TYPE(pref.value(autorec_keys[i]).toInt());
+	}
+	if(!autorec.contains("GLOBAL")) autorec["GLOBAL"] = AUTO_RECORD_TYPE(getValue("GLOBAL", AUTO_RECORD_ASK).toInt());
+	pref.endGroup();
 	//
 	files_directory = getValue("Files/Directory", "~/Skype Calls").toString();
 	files_names = getValue("Files/NameFormat", "Calls with &s/Call with &s, %Y-%m-%d, %H:%M:%S - %P").toString();
@@ -76,10 +82,20 @@ void Settings::setAudioOggQuality(int v)
 	pref.setValue("Audio/OGG_Quality", audio_ogg_quality);
 }
 
-void Settings::setAutoRecord(int v)
+void Settings::setAutoRecord(const QString& name, int v)
 {
-	autorec_global = AUTO_RECORD_TYPE(v);
-	pref.setValue("AutoRecord/Global", autorec_global);
+	autorec[name] = AUTO_RECORD_TYPE(v);
+	pref.beginGroup("AutoRecord");
+	pref.setValue(name, autorec[name]);
+	pref.endGroup();
+}
+
+void Settings::removeAutoRecord(const QString& name)
+{
+	autorec.remove(name);
+	pref.beginGroup("AutoRecord");
+	pref.remove(name);
+	pref.endGroup();
 }
 
 void Settings::setFilesDirectory(const QString& v)

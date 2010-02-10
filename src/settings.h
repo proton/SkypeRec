@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QVector>
 #include <QObject>
+#include <QHash>
 
 #include "common.h"
 
@@ -37,12 +38,6 @@ struct FileWriter
 	bool enabled;
 };
 
-struct AutoRecord
-{
-	AUTO_RECORD_TYPE format;
-	QString name;
-};
-
 class Settings : public QObject
 {
 	Q_OBJECT
@@ -57,10 +52,7 @@ private:
 	QVector<FileWriter> file_writers;
 	int audio_mp3_bitrate;
 	int audio_ogg_quality;
-	AUTO_RECORD_TYPE autorec_global;
-	QVector<AutoRecord> autorec_local;
-//	bool autorec_enabled;
-//	bool autorec_ask;
+	QHash<QString, AUTO_RECORD_TYPE> autorec;
 	QString files_directory;
 	QString files_names;
 	bool files_tags;
@@ -72,8 +64,17 @@ public:
 	inline const FileWriter& fileWriters(int i) const { return file_writers[i]; }
 	inline int audioMp3Quality() const { return audio_mp3_bitrate; }
 	inline int audioOggQuality() const { return audio_ogg_quality; }
-	inline AUTO_RECORD_TYPE autoRecord() const { return autorec_global; }
-	inline AutoRecord autoRecord(int i) const { return autorec_local[i]; }
+	//
+	inline AUTO_RECORD_TYPE autoRecord() const { return autorec["GLOBAL"]; }
+	inline AUTO_RECORD_TYPE autoRecord(const QString& name) const
+	{
+		return (autorec.contains(name))?autorec[name]:autorec["GLOBAL"];
+	}
+	inline const QHash<QString, AUTO_RECORD_TYPE>& autoRecordTable() const
+	{
+		return autorec;
+	}
+	//
 	QString filesDirectory() const;
 	inline const QString& filesNames() const { return files_names; }
 	inline bool filesTags() const { return files_tags; }
@@ -84,7 +85,14 @@ public:
 public slots:
 	void setAudioMp3Quality(int v);
 	void setAudioOggQuality(int v);
-	void setAutoRecord(int v);
+	//
+	void setAutoRecord(const QString& name, int v);
+	inline void setAutoRecord(int v)
+	{
+		setAutoRecord("GLOBAL", v);
+	}
+	void removeAutoRecord(const QString& name);
+	//
 	void setFilesDirectory(const QString&);
 	void setFilesNames(const QString&);
 	void setFilesTags(bool v);
