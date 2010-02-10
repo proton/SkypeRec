@@ -118,7 +118,7 @@ QWidget* PreferencesDialog::createRecordingTab(QWidget* parent)
 	group->addButton(radio, AUTO_RECORD_OFF);
 	vbox->addWidget(radio);
 	//
-	int auto_rec = settings.autoRecord();
+	int auto_rec = settings.autoRecordGlobal();
 	group->button(auto_rec)->setChecked(true);
 	//
 	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecord(int)));
@@ -421,7 +421,8 @@ void PreferencesDialog::closePerCallerDialog() {
 
 // per caller preferences editor
 
-PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialog(parent) {
+PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialog(parent)
+{
 	setWindowTitle("Per Caller Preferences");
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -472,10 +473,10 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 
 	// fill in data
 
-	QSet<QString> seen;
+//	QSet<QString> seen;
 
 //	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
-//	for (int i = 0; i < list.count(); i++) {
+//	for (int i = 0; i < list.count(); ++i) {
 //		QString sn = list.at(i);
 //		if (seen.contains(sn))
 //			continue;
@@ -484,7 +485,7 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 //	}
 //
 //	list = preferences.get(Pref::AutoRecordAsk).toList();
-//	for (int i = 0; i < list.count(); i++) {
+//	for (int i = 0; i < list.count(); ++i) {
 //		QString sn = list.at(i);
 //		if (seen.contains(sn))
 //			continue;
@@ -493,7 +494,7 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 //	}
 //
 //	list = preferences.get(Pref::AutoRecordNo).toList();
-//	for (int i = 0; i < list.count(); i++) {
+//	for (int i = 0; i < list.count(); ++i) {
 //		QString sn = list.at(i);
 //		if (seen.contains(sn))
 //			continue;
@@ -507,7 +508,8 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 	show();
 }
 
-void PerCallerPreferencesDialog::add(const QString &name, int mode, bool edit) {
+void PerCallerPreferencesDialog::add(const QString &name, int mode, bool edit)
+{
 	int i = model->rowCount();
 	model->insertRow(i);
 
@@ -522,7 +524,8 @@ void PerCallerPreferencesDialog::add(const QString &name, int mode, bool edit) {
 	}
 }
 
-void PerCallerPreferencesDialog::remove() {
+void PerCallerPreferencesDialog::remove()
+{
 	QModelIndexList sel = listWidget->selectionModel()->selectedIndexes();
 	qSort(sel);
 	while (!sel.isEmpty())
@@ -583,7 +586,7 @@ void PerCallerPreferencesDialog::save() {
 	model->sort();
 	int n = model->rowCount();
 	QStringList yes, ask, no;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; ++i) {
 		QModelIndex idx = model->index(i, 0);
 		QString sn = model->data(idx, Qt::EditRole).toString();
 		if (sn.isEmpty())
@@ -603,84 +606,101 @@ void PerCallerPreferencesDialog::save() {
 
 // per caller model
 
-int PerCallerModel::rowCount(const QModelIndex &) const {
-	return skypeNames.count();
+void PerCallerModel::load()
+{
+	const QHash<QString, AUTO_RECORD_TYPE>& hash = settings.autoRecordTable();
+	for(QHash<QString, AUTO_RECORD_TYPE>::const_iterator it=hash.constBegin(); it!=hash.constEnd(); ++it)
+	{
+		QPair<QString,AUTO_RECORD_TYPE> ar(it.key(), it.value());
+		autorec_list.append(ar);
+	}
+}
+
+int PerCallerModel::rowCount(const QModelIndex &) const
+{
+	return autorec_list.count();
 }
 
 namespace {
-	const char* PerCallerModel_data_table[3] = {
+	const char* PerCallerModel_data_table[3] =
+	{
 		"Don't record", "Ask", "Automatic"
 	};
 }
 
-QVariant PerCallerModel::data(const QModelIndex &index, int role) const {
-	if (!index.isValid() || index.row() >= skypeNames.size())
-		return QVariant();
-	if (role == Qt::DisplayRole) {
-		int i = index.row();
-		return skypeNames.at(i) + " - " + PerCallerModel_data_table[modes.at(i)];
+QVariant PerCallerModel::data(const QModelIndex &index, int role) const
+{
+	if (!index.isValid() || index.row() >= autorec_list.size()) return QVariant();
+	const QPair<QString,AUTO_RECORD_TYPE>& ar = autorec_list.at(index.row());
+	switch(role)
+	{
+		case Qt::DisplayRole: return QString(" - ").arg(ar.first, PerCallerModel_data_table[ar.second]);
+		case Qt::EditRole: return ar.first;
+		case Qt::UserRole: return ar.second;
+		default: return QVariant();
 	}
-	if (role == Qt::EditRole)
-		return skypeNames.at(index.row());
-	if (role == Qt::UserRole)
-		return modes.at(index.row());
-	return QVariant();
 }
 
-bool PerCallerModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-	if (!index.isValid() || index.row() >= skypeNames.size())
-		return false;
-	if (role == Qt::EditRole) {
-		skypeNames[index.row()] = value.toString();
-		emit dataChanged(index, index);
-		return true;
+bool PerCallerModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+	if (!index.isValid() || index.row() >= autorec_list.size()) return false;
+	QPair<QString,AUTO_RECORD_TYPE>& ar = autorec_list[index.row()];
+	switch(role)
+	{
+		case Qt::EditRole:
+		{
+			settings.removeAutoRecord(ar.first);
+			ar.first = value.toString();
+			settings.setAutoRecord(ar.first, ar.second);
+			emit dataChanged(index, index);
+			return true;
+		}
+		case Qt::UserRole:
+		{
+			ar.second = AUTO_RECORD_TYPE(value.toInt());
+			settings.setAutoRecord(ar.first, ar.second);
+			emit dataChanged(index, index);
+			return true;
+		}
+		default: return false;
 	}
-	if (role == Qt::UserRole) {
-		modes[index.row()] = value.toInt();
-		emit dataChanged(index, index);
-		return true;
-	}
-	return false;
 }
 
-bool PerCallerModel::insertRows(int position, int rows, const QModelIndex &) {
+bool PerCallerModel::insertRows(int position, int rows, const QModelIndex &)
+{
+	QPair<QString,AUTO_RECORD_TYPE> ar(QString(), settings.autoRecordGlobal());
 	beginInsertRows(QModelIndex(), position, position + rows - 1);
-	for (int i = 0; i < rows; i++) {
-		skypeNames.insert(position, "");
-		modes.insert(position, 1);
+	for (int i = 0; i < rows; ++i)
+	{
+		autorec_list.insert(position, ar);
 	}
 	endInsertRows();
 	return true;
 }
 
-bool PerCallerModel::removeRows(int position, int rows, const QModelIndex &) {
+bool PerCallerModel::removeRows(int position, int rows, const QModelIndex &)
+{
 	beginRemoveRows(QModelIndex(), position, position + rows - 1);
-	for (int i = 0; i < rows; i++) {
-		skypeNames.removeAt(position);
-		modes.removeAt(position);
+	for (int i = 0; i < rows; ++i)
+	{
+		QString name = autorec_list.at(i).first;
+		settings.removeAutoRecord(name);
+		autorec_list.removeAt(position);
 	}
 	endRemoveRows();
 	return true;
 }
 
-void PerCallerModel::sort(int, Qt::SortOrder) {
-	typedef QPair<QString, int> Pair;
-	typedef QList<Pair> List;
-	List list;
-	for (int i = 0; i < skypeNames.size(); i++)
-		list.append(Pair(skypeNames.at(i), modes.at(i)));
-	qSort(list);
-	for (int i = 0; i < skypeNames.size(); i++) {
-		skypeNames[i] = list.at(i).first;
-		modes[i] = list.at(i).second;
-	}
+void PerCallerModel::sort(int, Qt::SortOrder)
+{
+	qSort(autorec_list);
 	reset();
 }
 
-Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const
+{
 	Qt::ItemFlags flags = QAbstractListModel::flags(index);
-	if (!index.isValid() || index.row() >= skypeNames.size())
-		return flags;
+	if (!index.isValid() || index.row() >= autorec_list.size()) return flags;
 	return flags | Qt::ItemIsEditable;
 }
 
@@ -752,7 +772,7 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
 //		return false;
 //	}
 //	QTextStream out(&file);
-//	for (int i = 0; i < prefs.size(); i++) {
+//	for (int i = 0; i < prefs.size(); ++i) {
 //		const Preference &p = *prefs.at(i);
 //		out << p.name() << " = " << p.toString() << "\n";
 //	}
@@ -761,7 +781,7 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
 //}
 //
 //Preference &BasePreferences::get(const QString &name) {
-//	for (int i = 0; i < prefs.size(); i++)
+//	for (int i = 0; i < prefs.size(); ++i)
 //		if (prefs.at(i)->name() == name)
 //			return *prefs[i];
 //	prefs.append(new Preference(name));
@@ -769,7 +789,7 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
 //}
 //
 //void BasePreferences::remove(const QString &name) {
-//	for (int i = 0; i < prefs.size(); i++) {
+//	for (int i = 0; i < prefs.size(); ++i) {
 //		if (prefs.at(i)->name() == name) {
 //			delete prefs.takeAt(i);
 //			return;
@@ -778,14 +798,14 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const {
 //}
 //
 //bool BasePreferences::exists(const QString &name) const {
-//	for (int i = 0; i < prefs.size(); i++)
+//	for (int i = 0; i < prefs.size(); ++i)
 //		if (prefs.at(i)->name() == name)
 //			return true;
 //	return false;
 //}
 //
 //void BasePreferences::clear() {
-//	for (int i = 0; i < prefs.size(); i++)
+//	for (int i = 0; i < prefs.size(); ++i)
 //		delete prefs.at(i);
 //	prefs.clear();
 //}

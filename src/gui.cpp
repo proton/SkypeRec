@@ -113,8 +113,7 @@ void RecordConfirmationDialog::yesClicked()
 	emit yes();
 	if (remember->isChecked())
 	{
-		//TODO:
-		//preferences.setPerCallerPreference(skypeName, 2);
+		settings.setAutoRecord(skypeName, AUTO_RECORD_ON);
 	}
 	accept();
 }
@@ -124,8 +123,7 @@ void RecordConfirmationDialog::noClicked()
 	emit no();
 	if (remember->isChecked())
 	{
-		//TODO:
-		//preferences.setPerCallerPreference(skypeName, 0);
+		settings.setAutoRecord(skypeName, AUTO_RECORD_OFF);
 	}
 	accept();
 }

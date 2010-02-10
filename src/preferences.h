@@ -110,10 +110,12 @@ private:
 
 // per caller model
 
-class PerCallerModel : public QAbstractListModel {
+class PerCallerModel : public QAbstractListModel
+{
 	Q_OBJECT
 public:
-	PerCallerModel(QObject *parent) : QAbstractListModel(parent) { }
+	PerCallerModel(QObject *parent) : QAbstractListModel(parent) {}
+	void load();
 	int rowCount(const QModelIndex & = QModelIndex()) const;
 	QVariant data(const QModelIndex &, int) const;
 	bool setData(const QModelIndex &, const QVariant &, int = Qt::EditRole);
@@ -123,8 +125,7 @@ public:
 	Qt::ItemFlags flags(const QModelIndex &) const;
 
 private:
-	QStringList skypeNames;
-	QList<int> modes;
+	QList<QPair<QString,AUTO_RECORD_TYPE> > autorec_list;
 };
 
 // the only instance of Preferences

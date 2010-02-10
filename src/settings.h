@@ -65,10 +65,10 @@ public:
 	inline int audioMp3Quality() const { return audio_mp3_bitrate; }
 	inline int audioOggQuality() const { return audio_ogg_quality; }
 	//
-	inline AUTO_RECORD_TYPE autoRecord() const { return autorec["GLOBAL"]; }
+	inline AUTO_RECORD_TYPE autoRecordGlobal() const { return autorec["GLOBAL"]; }
 	inline AUTO_RECORD_TYPE autoRecord(const QString& name) const
 	{
-		return (autorec.contains(name))?autorec[name]:autorec["GLOBAL"];
+		return (autorec.contains(name))?autorec[name]:autoRecordGlobal();
 	}
 	inline const QHash<QString, AUTO_RECORD_TYPE>& autoRecordTable() const
 	{
@@ -87,7 +87,7 @@ public slots:
 	void setAudioOggQuality(int v);
 	//
 	void setAutoRecord(const QString& name, int v);
-	inline void setAutoRecord(int v)
+	inline void setAutoRecordGlobal(int v)
 	{
 		setAutoRecord("GLOBAL", v);
 	}
