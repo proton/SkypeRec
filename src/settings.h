@@ -98,6 +98,7 @@ public slots:
 	void setFilesTags(bool v);
 	void setGuiNotify(bool v);
 	void setGuiWindowed(bool v);
+	void setGuiHideLegalInfo(bool v);
 	void setGuiFirstLaunch(bool v);
 };
 

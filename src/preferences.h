@@ -134,7 +134,5 @@ extern Settings settings;
 extern QString getFileName(const QString &, const QString &, const QString &,
 	const QString &, const QDateTime &, const QString & = QString());
 
-#undef X
-
 #endif
 

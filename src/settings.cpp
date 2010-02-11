@@ -128,6 +128,12 @@ void Settings::setGuiWindowed(bool v)
 	pref.setValue("Gui/Windowed", gui_windowed);
 }
 
+void Settings::setGuiHideLegalInfo(bool v)
+{
+	gui_hide_legal_info = v;
+	pref.setValue("Gui/HideLegalInfo", gui_hide_legal_info);
+}
+
 void Settings::setGuiFirstLaunch(bool v)
 {
 	gui_first_launch = v;

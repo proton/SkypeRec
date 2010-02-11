@@ -172,13 +172,13 @@ LegalInformationDialog::LegalInformationDialog() :
 
 	additionalInfoLayout->addSpacing(10);
 
-	//TODO:
-//	QWidget *checkBox = new SmartCheckBox("Do not show this information again", preferences.get(Pref::SuppressLegalInformation));
-//	additionalInfoLayout->addWidget(checkBox);
+	QCheckBox* checkBox = new QCheckBox("Do not show this information again");
+	connect(checkBox, SIGNAL(toggled(bool)), &settings, SLOT(setGuiHideLegalInfo(bool)));
+	additionalInfoLayout->addWidget(checkBox);
 
 	vbox->addWidget(additionalInfo);
 
-	QPushButton *button = new QPushButton("More information >>");
+	QPushButton* button = new QPushButton("More information >>");
 	connect(button, SIGNAL(clicked()), button, SLOT(hide()));
 	connect(button, SIGNAL(clicked()), additionalInfo, SLOT(show()));
 	vbox->addWidget(button, 0, Qt::AlignLeft);
