@@ -96,7 +96,6 @@ private slots:
 	void remove();
 	void selectionChanged();
 	void radioChanged();
-	void save();
 
 private:
 	QListView *listWidget;

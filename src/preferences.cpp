@@ -219,7 +219,6 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 		combo->addItem("Ogg Vorbis", AUDIO_FORMAT_OGG);
 		int n = combo->findData(fw.format);
 		if(n>=0) combo->setCurrentIndex(n);
-		//connect(combo, SIGNAL(currentIndexChanged(int)), &settings, SLOT(setFilesTags(bool)));
 		grid->addWidget(combo, i+1, 1);
 		//
 		edit = new QLineEdit(fw.postfix, widget);
@@ -471,39 +470,8 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 
 	bighbox->addLayout(vbox);
 
-	// fill in data
-
-//	QSet<QString> seen;
-
-//	QStringList list = preferences.get(Pref::AutoRecordYes).toList();
-//	for (int i = 0; i < list.count(); ++i) {
-//		QString sn = list.at(i);
-//		if (seen.contains(sn))
-//			continue;
-//		seen.insert(sn);
-//		add(sn, 2, false);
-//	}
-//
-//	list = preferences.get(Pref::AutoRecordAsk).toList();
-//	for (int i = 0; i < list.count(); ++i) {
-//		QString sn = list.at(i);
-//		if (seen.contains(sn))
-//			continue;
-//		seen.insert(sn);
-//		add(sn, 1, false);
-//	}
-//
-//	list = preferences.get(Pref::AutoRecordNo).toList();
-//	for (int i = 0; i < list.count(); ++i) {
-//		QString sn = list.at(i);
-//		if (seen.contains(sn))
-//			continue;
-//		seen.insert(sn);
-//		add(sn, 0, false);
-//	}
-
+	model->load();
 	model->sort();
-	connect(this, SIGNAL(finished(int)), this, SLOT(save()));
 	selectionChanged();
 	show();
 }
@@ -571,38 +539,18 @@ void PerCallerPreferencesDialog::selectionChanged() {
 	radioNo ->setEnabled(notEmpty);
 }
 
-void PerCallerPreferencesDialog::radioChanged() {
-	int mode = 1;
+void PerCallerPreferencesDialog::radioChanged()
+{
+	AUTO_RECORD_TYPE ar;
 	if (radioYes->isChecked())
-		mode = 2;
+		ar = AUTO_RECORD_ON;
 	else if (radioNo->isChecked())
-		mode = 0;
-
+		ar = AUTO_RECORD_OFF;
+	else
+		ar = AUTO_RECORD_ASK;
+	//
 	QModelIndexList sel = listWidget->selectionModel()->selectedIndexes();
-	while (!sel.isEmpty())
-		model->setData(sel.takeLast(), mode, Qt::UserRole);
-}
-
-void PerCallerPreferencesDialog::save() {
-	model->sort();
-	int n = model->rowCount();
-	QStringList yes, ask, no;
-	for (int i = 0; i < n; ++i) {
-		QModelIndex idx = model->index(i, 0);
-		QString sn = model->data(idx, Qt::EditRole).toString();
-		if (sn.isEmpty())
-			continue;
-		int mode = model->data(idx, Qt::UserRole).toInt();
-		if (mode == 0)
-			no.append(sn);
-		else if (mode == 1)
-			ask.append(sn);
-		else if (mode == 2)
-			yes.append(sn);
-	}
-//	preferences.get(Pref::AutoRecordYes).set(yes);
-//	preferences.get(Pref::AutoRecordAsk).set(ask);
-//	preferences.get(Pref::AutoRecordNo).set(no);
+	while (!sel.isEmpty()) model->setData(sel.takeLast(), ar, Qt::UserRole);
 }
 
 // per caller model
@@ -704,132 +652,3 @@ Qt::ItemFlags PerCallerModel::flags(const QModelIndex &index) const
 	if (!index.isValid() || index.row() >= autorec_list.size()) return flags;
 	return flags | Qt::ItemIsEditable;
 }
-
-//// preference
-//
-//void Preference::listAdd(const QString &value) {
-//	QStringList list = toList();
-//	if (!list.contains(value)) {
-//		list.append(value);
-//		set(list);
-//	}
-//}
-//
-//void Preference::listRemove(const QString &value) {
-//	QStringList list = toList();
-//	if (list.removeAll(value))
-//		set(list);
-//}
-//
-//bool Preference::listContains(const QString &value) {
-//	QStringList list = toList();
-//	return list.contains(value);
-//}
-//
-//// base preferences
-//
-//BasePreferences::~BasePreferences() {
-//	clear();
-//}
-//
-//bool BasePreferences::load(const QString &filename) {
-//	clear();
-//	QFile file(filename);
-//	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-//		debug(QString("Can't open '%1' for loading preferences").arg(filename));
-//		return false;
-//	}
-//	char buf[65536];
-//	while (!file.atEnd()) {
-//		qint64 len = file.readLine(buf, sizeof(buf));
-//		if (len == -1)
-//			break;
-//		QString line = QString::fromUtf8(buf);
-//		line = line.trimmed();
-//		if (line.at(0) == '#')
-//			continue;
-//		int index = line.indexOf('=');
-//		if (index < 0)
-//			// TODO warn
-//			continue;
-//		get(line.left(index).trimmed()).set(line.mid(index + 1).trimmed());
-//        }
-//	debug(QString("Loaded %1 preferences from '%2'").arg(prefs.size()).arg(filename));
-//	return true;
-//}
-//
-//namespace {
-//bool comparePreferencePointers(const Preference *p1, const Preference *p2)
-//{
-//	return *p1 < *p2;
-//}
-//}
-//
-//bool BasePreferences::save(const QString &filename) {
-//	qSort(prefs.begin(), prefs.end(), comparePreferencePointers);
-//	QFile file(filename);
-//	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-//		debug(QString("Can't open '%1' for saving preferences").arg(filename));
-//		return false;
-//	}
-//	QTextStream out(&file);
-//	for (int i = 0; i < prefs.size(); ++i) {
-//		const Preference &p = *prefs.at(i);
-//		out << p.name() << " = " << p.toString() << "\n";
-//	}
-//	debug(QString("Saved %1 preferences to '%2'").arg(prefs.size()).arg(filename));
-//	return true;
-//}
-//
-//Preference &BasePreferences::get(const QString &name) {
-//	for (int i = 0; i < prefs.size(); ++i)
-//		if (prefs.at(i)->name() == name)
-//			return *prefs[i];
-//	prefs.append(new Preference(name));
-//	return *prefs.last();
-//}
-//
-//void BasePreferences::remove(const QString &name) {
-//	for (int i = 0; i < prefs.size(); ++i) {
-//		if (prefs.at(i)->name() == name) {
-//			delete prefs.takeAt(i);
-//			return;
-//		}
-//	}
-//}
-//
-//bool BasePreferences::exists(const QString &name) const {
-//	for (int i = 0; i < prefs.size(); ++i)
-//		if (prefs.at(i)->name() == name)
-//			return true;
-//	return false;
-//}
-//
-//void BasePreferences::clear() {
-//	for (int i = 0; i < prefs.size(); ++i)
-//		delete prefs.at(i);
-//	prefs.clear();
-//}
-//
-//// preferences
-//
-//void Preferences::setPerCallerPreference(const QString &sn, int mode) {
-//	// this would interfer with the per caller dialog
-//	recorderInstance->closePerCallerDialog();
-//
-//	Preference &pYes = get(Pref::AutoRecordYes);
-//	Preference &pAsk = get(Pref::AutoRecordAsk);
-//	Preference &pNo = get(Pref::AutoRecordNo);
-//
-//	pYes.listRemove(sn);
-//	pAsk.listRemove(sn);
-//	pNo.listRemove(sn);
-//
-//	if (mode == 2)
-//		pYes.listAdd(sn);
-//	else if (mode == 1)
-//		pAsk.listAdd(sn);
-//	else if (mode == 0)
-//		pNo.listAdd(sn);
-//}
-
