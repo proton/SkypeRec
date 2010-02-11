@@ -517,7 +517,8 @@ void PerCallerPreferencesDialog::add(const QString &name, int mode, bool edit)
 	model->setData(idx, name, Qt::EditRole);
 	model->setData(idx, mode, Qt::UserRole);
 
-	if (edit) {
+	if (edit)
+	{
 		listWidget->clearSelection();
 		listWidget->setCurrentIndex(idx);
 		listWidget->edit(idx);

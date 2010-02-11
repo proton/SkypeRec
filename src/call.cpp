@@ -535,15 +535,19 @@ void Call::tryToWrite(bool flush)
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
-	bool success = true;
 	QByteArray bufferRemote2(bufferRemote);
 	QByteArray bufferLocal2(bufferLocal);
 	QByteArray dummy;
 	mixToMono(samples);
-	if(success) success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
-	if(success) success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
-	if(success) success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
-	if(success) success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush); //fail
+	bool success = true;
+	if(success && settings.fileWriters(FILE_WRITER_ALL).enabled)
+		success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
+	if(success && settings.fileWriters(FILE_WRITER_IN).enabled)
+		success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
+	if(success && settings.fileWriters(FILE_WRITER_OUT).enabled)
+		success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
+	if(success && settings.fileWriters(FILE_WRITER_2CH).enabled)
+		success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
 
 	if (!success)
 	{
