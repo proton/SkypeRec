@@ -94,7 +94,7 @@ QString getFileName(const QString &skypeName, const QString &displayName,
 
 // preferences dialog
 
-static QVBoxLayout* makeVFrame(QVBoxLayout* parentLayout, const char* title)
+static QVBoxLayout* makeVFrame(QVBoxLayout* parentLayout, const QString& title)
 {
 	QGroupBox *box = new QGroupBox(title);
 	QVBoxLayout* vbox = new QVBoxLayout(box);
@@ -108,13 +108,13 @@ QWidget* PreferencesDialog::createRecordingTab(QWidget* parent)
 	QVBoxLayout* vbox = new QVBoxLayout(widget);
 	//
 	QButtonGroup* group = new QButtonGroup(vbox);
-	QRadioButton* radio = new QRadioButton("Automatically &record all calls", widget);
+	QRadioButton* radio = new QRadioButton(tr("Automatically &record all calls"), widget);
 	group->addButton(radio, AUTO_RECORD_ON);
 	vbox->addWidget(radio);
-	radio = new QRadioButton("&Ask for every call", widget);
+	radio = new QRadioButton(tr("&Ask for every call"), widget);
 	group->addButton(radio, AUTO_RECORD_ASK);
 	vbox->addWidget(radio);
-	radio = new QRadioButton("Do &not automatically record calls", widget);
+	radio = new QRadioButton(tr("Do &not automatically record calls"), widget);
 	group->addButton(radio, AUTO_RECORD_OFF);
 	vbox->addWidget(radio);
 	//
@@ -123,11 +123,11 @@ QWidget* PreferencesDialog::createRecordingTab(QWidget* parent)
 	//
 	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecord(int)));
 
-	QPushButton* button = new QPushButton("Edit &per caller preferences", widget);
+	QPushButton* button = new QPushButton(tr("Edit &per caller preferences"), widget);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
 	vbox->addWidget(button);
 
-	QCheckBox* check = new QCheckBox("Show &balloon notification when recording starts", widget);
+	QCheckBox* check = new QCheckBox(tr("Show &balloon notification when recording starts"), widget);
 	check->setChecked(settings.guiNotify());
 	connect(button, SIGNAL(toggled(bool)), &settings, SLOT(setGuiNotify(bool)));
 	vbox->addWidget(check);
@@ -141,7 +141,7 @@ QWidget* PreferencesDialog::createPathTab(QWidget* parent)
 	QWidget* widget = new QWidget(parent);
 	QVBoxLayout* vbox = new QVBoxLayout(widget);
 	//
-	QLabel* label = new QLabel("&Save recorded calls here:", widget);
+	QLabel* label = new QLabel(tr("&Save recorded calls here:"), widget);
 	filesPathEdit = new QLineEdit(settings.filesDirectory(), widget);
 	label->setBuddy(filesPathEdit);
 	//
@@ -155,15 +155,15 @@ QWidget* PreferencesDialog::createPathTab(QWidget* parent)
 	vbox->addWidget(label);
 	vbox->addLayout(hbox);
 	//
-	label = new QLabel("File &name:");
+	label = new QLabel(tr("File &name:"));
 	patternWidget = new QComboBox(widget);
 	patternWidget->setEditable(true);
 	patternWidget->setEditText(settings.filesNames());
 	label->setBuddy(patternWidget);
-	patternWidget->addItem("%Y-%m-%d %H:%M:%S Call with &s - %P");
-	patternWidget->addItem("Call with &s, %a %b %d %Y, %H:%M:%S - %P");
-	patternWidget->addItem("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S - %P");
-	patternWidget->addItem("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S - %P");
+	patternWidget->addItem(tr("%Y-%m-%d %H:%M:%S Call with &s - %P"));
+	patternWidget->addItem(tr("Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
+	patternWidget->addItem(tr("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
+	patternWidget->addItem(tr("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
 	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
 	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), &settings, SLOT(setFilesNames(const QString &)));
 	vbox->addWidget(label);
@@ -171,7 +171,7 @@ QWidget* PreferencesDialog::createPathTab(QWidget* parent)
 	//
 	vbox->addStretch();
 	//
-	absolutePathWarningLabel = new QLabel("<b>Warning:</b> The path you have entered is not an absolute path!", widget);
+	absolutePathWarningLabel = new QLabel(tr("<b>Warning:</b> The path you have entered is not an absolute path!"), widget);
 	vbox->addWidget(absolutePathWarningLabel);
 	//
 	updatePatternToolTip("");
@@ -184,10 +184,10 @@ const QString writerTitle(FILE_WRITER_ID id)
 {
 	switch(id)
 	{
-	case FILE_WRITER_IN: return QString("Input stream:");
-	case FILE_WRITER_OUT: return QString("Output stream:");
-	case FILE_WRITER_2CH: return QString("Mixed stream (stereo):");
-	case FILE_WRITER_ALL: return QString("Mixed stream (mono):");
+	case FILE_WRITER_IN: return QObject::tr("Input stream:");
+	case FILE_WRITER_OUT: return QObject::tr("Output stream:");
+	case FILE_WRITER_2CH: return QObject::tr("Mixed stream (stereo):");
+	case FILE_WRITER_ALL: return QObject::tr("Mixed stream (mono):");
 	default: return QString();
 	}
 }
@@ -199,9 +199,9 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 	//
 	QGridLayout* grid = new QGridLayout();
 	//
-	grid->addWidget(new QLabel("Name", widget), 0, 0);
-	grid->addWidget(new QLabel("Format", widget), 0, 1);
-	grid->addWidget(new QLabel("Postfix", widget), 0, 2);
+	grid->addWidget(new QLabel(tr("Name"), widget), 0, 0);
+	grid->addWidget(new QLabel(tr("Format"), widget), 0, 1);
+	grid->addWidget(new QLabel(tr("Postfix"), widget), 0, 2);
 	QCheckBox* check;
 	QComboBox *combo;
 	QLineEdit *edit;
@@ -229,44 +229,44 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 	//
 	grid = new QGridLayout();
 	//
-	QLabel* label = new QLabel("MP3 &bitrate:", widget);
+	QLabel* label = new QLabel(tr("MP3 &bitrate:"), widget);
 	mp3QualityWidget = new QComboBox(widget);
 	label->setBuddy(mp3QualityWidget);
-	mp3QualityWidget->addItem("8 kbps", 8);
-	mp3QualityWidget->addItem("16 kbps", 16);
-	mp3QualityWidget->addItem("24 kbps", 24);
-	mp3QualityWidget->addItem("32 kbps (recommended for mono)", 32);
-	mp3QualityWidget->addItem("40 kbps", 40);
-	mp3QualityWidget->addItem("48 kbps", 48);
-	mp3QualityWidget->addItem("56 kbps", 56);
-	mp3QualityWidget->addItem("64 kbps (recommended for stereo)", 64);
-	mp3QualityWidget->addItem("80 kbps", 80);
-	mp3QualityWidget->addItem("96 kbps", 96);
-	mp3QualityWidget->addItem("112 kbps", 112);
-	mp3QualityWidget->addItem("128 kbps", 128);
-	mp3QualityWidget->addItem("144 kbps", 144);
-	mp3QualityWidget->addItem("160 kbps", 160);
+	mp3QualityWidget->addItem(tr("8 kbps"), 8);
+	mp3QualityWidget->addItem(tr("16 kbps"), 16);
+	mp3QualityWidget->addItem(tr("24 kbps"), 24);
+	mp3QualityWidget->addItem(tr("32 kbps (recommended for mono)"), 32);
+	mp3QualityWidget->addItem(tr("40 kbps"), 40);
+	mp3QualityWidget->addItem(tr("48 kbps"), 48);
+	mp3QualityWidget->addItem(tr("56 kbps"), 56);
+	mp3QualityWidget->addItem(tr("64 kbps (recommended for stereo)"), 64);
+	mp3QualityWidget->addItem(tr("80 kbps"), 80);
+	mp3QualityWidget->addItem(tr("96 kbps"), 96);
+	mp3QualityWidget->addItem(tr("112 kbps"), 112);
+	mp3QualityWidget->addItem(tr("128 kbps"), 128);
+	mp3QualityWidget->addItem(tr("144 kbps"), 144);
+	mp3QualityWidget->addItem(tr("160 kbps"), 160);
 	int i = mp3QualityWidget->findData(settings.audioMp3Quality());
 	if(i>=0) mp3QualityWidget->setCurrentIndex(i);
 	connect(mp3QualityWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(setMp3Quality(int)));
 	grid->addWidget(label, 0, 0);
 	grid->addWidget(mp3QualityWidget, 0, 1);
 	//
-	label = new QLabel("Ogg Vorbis &quality:");
+	label = new QLabel(tr("Ogg Vorbis &quality:"));
 	oggQualityWidget = new QComboBox(widget);
 	label->setBuddy(oggQualityWidget);
-	oggQualityWidget->addItem("Quality -1", -1);
-	oggQualityWidget->addItem("Quality 0", 0);
-	oggQualityWidget->addItem("Quality 1", 1);
-	oggQualityWidget->addItem("Quality 2", 2);
-	oggQualityWidget->addItem("Quality 3 (recommended)", 3);
-	oggQualityWidget->addItem("Quality 4", 4);
-	oggQualityWidget->addItem("Quality 5", 5);
-	oggQualityWidget->addItem("Quality 6", 6);
-	oggQualityWidget->addItem("Quality 7", 7);
-	oggQualityWidget->addItem("Quality 8", 8);
-	oggQualityWidget->addItem("Quality 9", 9);
-	oggQualityWidget->addItem("Quality 10", 10);
+	oggQualityWidget->addItem(tr("Quality -1"), -1);
+	oggQualityWidget->addItem(tr("Quality 0"), 0);
+	oggQualityWidget->addItem(tr("Quality 1"), 1);
+	oggQualityWidget->addItem(tr("Quality 2"), 2);
+	oggQualityWidget->addItem(tr("Quality 3 (recommended)"), 3);
+	oggQualityWidget->addItem(tr("Quality 4"), 4);
+	oggQualityWidget->addItem(tr("Quality 5"), 5);
+	oggQualityWidget->addItem(tr("Quality 6"), 6);
+	oggQualityWidget->addItem(tr("Quality 7"), 7);
+	oggQualityWidget->addItem(tr("Quality 8"), 8);
+	oggQualityWidget->addItem(tr("Quality 9"), 9);
+	oggQualityWidget->addItem(tr("Quality 10"), 10);
 	i = oggQualityWidget->findData(settings.audioOggQuality());
 	if(i>=0) oggQualityWidget->setCurrentIndex(i);
 	connect(oggQualityWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(setOggQuality(int)));
@@ -275,7 +275,7 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 	//
 	vbox->addLayout(grid);
 	//
-	check = new QCheckBox("Save call &information in files", widget);
+	check = new QCheckBox(tr("Save call &information in files"), widget);
 	check->setChecked(settings.filesTags());
 	connect(check, SIGNAL(toggled(bool)), &settings, SLOT(setFilesTags(bool)));
 	vbox->addWidget(check);
@@ -289,8 +289,8 @@ QWidget* PreferencesDialog::createMiscTab(QWidget* parent)
 	QWidget* widget = new QWidget(parent);
 	QVBoxLayout* vbox = new QVBoxLayout(widget);
 
-	QCheckBox *check = new QCheckBox("&Display a small main window.  Enable this if your\n"
-		"environment does not provide a system tray (needs restart)", widget);
+	QCheckBox *check = new QCheckBox(tr("&Display a small main window.  Enable this if your\n"
+		"environment does not provide a system tray (needs restart)"), widget);
 	connect(check, SIGNAL(toggled(bool)), &settings, SLOT(setGuiWindowed(bool)));
 	vbox->addWidget(check);
 
@@ -300,7 +300,7 @@ QWidget* PreferencesDialog::createMiscTab(QWidget* parent)
 
 PreferencesDialog::PreferencesDialog()
 {
-	setWindowTitle(PROGRAM_NAME " - Preferences");
+	setWindowTitle(tr("%1 - Preferences").arg(PROGRAM_NAME));
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	QVBoxLayout* vbox = new QVBoxLayout(this);
@@ -309,14 +309,14 @@ PreferencesDialog::PreferencesDialog()
 	QTabWidget *tabWidget = new QTabWidget;
 	vbox->addWidget(tabWidget);
 
-	tabWidget->addTab(createRecordingTab(tabWidget), "Au&tomatic Recording");
-	tabWidget->addTab(createPathTab(tabWidget), "&File paths");
-	tabWidget->addTab(createFormatTab(tabWidget), "W&riters");
-	tabWidget->addTab(createMiscTab(tabWidget), "&Misc");
+	tabWidget->addTab(createRecordingTab(tabWidget), tr("Au&tomatic Recording"));
+	tabWidget->addTab(createPathTab(tabWidget), tr("&File paths"));
+	tabWidget->addTab(createFormatTab(tabWidget), tr("W&riters"));
+	tabWidget->addTab(createMiscTab(tabWidget), tr("&Misc"));
 	tabWidget->setUsesScrollButtons(false);
 
 	QHBoxLayout *hbox = new QHBoxLayout;
-	QPushButton* button = new QPushButton("&Close");
+	QPushButton* button = new QPushButton(tr("&Close"));
 	button->setDefault(true);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(accept()));
 	hbox->addStretch();
@@ -343,7 +343,7 @@ void PreferencesDialog::editPerCallerPreferences()
 
 void PreferencesDialog::browseOutputPath()
 {
-	QFileDialog dialog(this, "Select output path", settings.filesDirectory());
+	QFileDialog dialog(this, tr("Select output path"), settings.filesDirectory());
 	dialog.setFileMode(QFileDialog::DirectoryOnly);
 	if (!dialog.exec()) return;
 	//
@@ -409,7 +409,7 @@ void PreferencesDialog::updatePatternToolTip(const QString &pattern)
 		QDateTime::currentDateTime(), pattern);
 	tip += fn;
 	if (fn.contains(':'))
-		tip += "\n\nWARNING: Microsoft Windows does not allow colon characters (:) in file names.";
+		tip += tr("\n\nWARNING: Microsoft Windows does not allow colon characters (:) in file names.");
 //	patternWidget->setToolTip(tip);
 }
 
@@ -438,10 +438,10 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 	connect(listWidget->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selectionChanged()));
 	vbox->addWidget(listWidget);
 
-	QVBoxLayout* frame = makeVFrame(vbox, "Preference for selected Skype names:");
-	radioYes = new QRadioButton("Automatically &record calls");
-	radioAsk = new QRadioButton("&Ask every time");
-	radioNo  = new QRadioButton("Do &not automatically record calls");
+	QVBoxLayout* frame = makeVFrame(vbox, tr("Preference for selected Skype names:"));
+	radioYes = new QRadioButton(tr("Automatically &record calls"));
+	radioAsk = new QRadioButton(tr("&Ask every time"));
+	radioNo  = new QRadioButton(tr("Do &not automatically record calls"));
 	connect(radioYes, SIGNAL(clicked(bool)), this, SLOT(radioChanged()));
 	connect(radioAsk, SIGNAL(clicked(bool)), this, SLOT(radioChanged()));
 	connect(radioNo,  SIGNAL(clicked(bool)), this, SLOT(radioChanged()));
@@ -453,17 +453,17 @@ PerCallerPreferencesDialog::PerCallerPreferencesDialog(QWidget* parent) : QDialo
 
 	vbox = new QVBoxLayout;
 
-	QPushButton* button = new QPushButton("A&dd");
+	QPushButton* button = new QPushButton(tr("A&dd"));
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(add()));
 	vbox->addWidget(button);
 
-	button = new QPushButton("Re&move");
+	button = new QPushButton(tr("Re&move"));
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(remove()));
 	vbox->addWidget(button);
 
 	vbox->addStretch();
 
-	button = new QPushButton("&Close");
+	button = new QPushButton(tr("&Close"));
 	button->setDefault(true);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(accept()));
 	vbox->addWidget(button);
@@ -570,11 +570,14 @@ int PerCallerModel::rowCount(const QModelIndex &) const
 	return autorec_list.count();
 }
 
-namespace {
-	const char* PerCallerModel_data_table[3] =
+const QString writerTitle(AUTO_RECORD_TYPE ar)
+{
+	switch(ar)
 	{
-		"Don't record", "Ask", "Automatic"
-	};
+	case AUTO_RECORD_OFF: return QObject::tr("Don't record");
+	case AUTO_RECORD_ASK: return QObject::tr("Ask");
+	case AUTO_RECORD_ON: return QObject::tr("Automatic");
+	}
 }
 
 QVariant PerCallerModel::data(const QModelIndex &index, int role) const

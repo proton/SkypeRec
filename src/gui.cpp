@@ -67,23 +67,23 @@ IconDialogBase::IconDialogBase(const QString &title, QStyle::StandardPixmap pixm
 // ---- RecordConfirmationDialog ----
 
 RecordConfirmationDialog::RecordConfirmationDialog(const QString &sn, const QString &displayName) :
-	IconDialogBase("Recording confirmation", QStyle::SP_MessageBoxQuestion),
+	IconDialogBase(tr("Recording confirmation"), QStyle::SP_MessageBoxQuestion),
 	skypeName(sn)
 {
-	QLabel *label = new QLabel(QString(PROGRAM_NAME " has started recording the call with <b>%1</b> (%2).<br>"
-		"Do you wish to continue recording or shall it stop and delete the file?").arg(skypeName, displayName));
+	QLabel *label = new QLabel(tr("%1 has started recording the call with <b>%2</b> (%3).<br>"
+		"Do you wish to continue recording or shall it stop and delete the file?").arg(PROGRAM_NAME, skypeName, displayName));
 	vbox->addWidget(label);
 
 	vbox->addSpacing(10);
 
-	remember = new QCheckBox(QString("&Automatically perform this action on the next call with %1").arg(skypeName));
+	remember = new QCheckBox(tr("&Automatically perform this action on the next call with %1").arg(skypeName));
 	remember->setEnabled(false);
 	widgets.append(remember);
 	vbox->addWidget(remember);
 
 	hbox->addStretch(1);
 
-	QPushButton *button = new QPushButton("&Continue recording");
+	QPushButton *button = new QPushButton(tr("&Continue recording"));
 	button->setEnabled(false);
 	button->setDefault(true);
 	button->setMinimumWidth(180);
@@ -91,7 +91,7 @@ RecordConfirmationDialog::RecordConfirmationDialog(const QString &sn, const QStr
 	connect(button, SIGNAL(clicked()), this, SLOT(yesClicked()));
 	hbox->addWidget(button);
 
-	button = new QPushButton("&Stop recording and delete");
+	button = new QPushButton(tr("&Stop recording and delete"));
 	button->setEnabled(false);
 	button->setMinimumWidth(180);
 	widgets.append(button);
@@ -137,9 +137,9 @@ void RecordConfirmationDialog::enableWidgets()
 // ---- LegalInformationDialog ----
 
 LegalInformationDialog::LegalInformationDialog() :
-	IconDialogBase("Legal information", QStyle::SP_MessageBoxInformation)
+	IconDialogBase(tr("Legal information"), QStyle::SP_MessageBoxInformation)
 {
-	QLabel *label = new QLabel("Please make sure that recording this call is legal and that all involved parties\nagree with it.");
+	QLabel *label = new QLabel(tr("Please make sure that recording this call is legal and that all involved parties\nagree with it."));
 	vbox->addWidget(label);
 
 	QWidget *additionalInfo = new QWidget;
@@ -149,7 +149,7 @@ LegalInformationDialog::LegalInformationDialog() :
 
 	additionalInfoLayout->addSpacing(10);
 
-	label = new QLabel(
+	label = new QLabel(tr(
 		"<p>The legality of recording calls depends on whether the involved parties agree<br>"
 		"with it and on the laws that apply to their geographic locations.  Here is a<br>"
 		"simple rule of thumb:</p>"
@@ -164,7 +164,7 @@ LegalInformationDialog::LegalInformationDialog() :
 
 		"<p>For more serious legal advice, consult a lawyer.  For more information, you can<br>"
 		"search the internet for '<a href='http://www.google.com/search?q=call+recording+legal'>call recording legal</a>'.</p>"
-	);
+	));
 	label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 	label->setTextFormat(Qt::RichText);
 	label->setOpenExternalLinks(true);
@@ -172,18 +172,18 @@ LegalInformationDialog::LegalInformationDialog() :
 
 	additionalInfoLayout->addSpacing(10);
 
-	QCheckBox* checkBox = new QCheckBox("Do not show this information again");
+	QCheckBox* checkBox = new QCheckBox(tr("Do not show this information again"));
 	connect(checkBox, SIGNAL(toggled(bool)), &settings, SLOT(setGuiHideLegalInfo(bool)));
 	additionalInfoLayout->addWidget(checkBox);
 
 	vbox->addWidget(additionalInfo);
 
-	QPushButton* button = new QPushButton("More information >>");
+	QPushButton* button = new QPushButton(tr("More information >>"));
 	connect(button, SIGNAL(clicked()), button, SLOT(hide()));
 	connect(button, SIGNAL(clicked()), additionalInfo, SLOT(show()));
 	vbox->addWidget(button, 0, Qt::AlignLeft);
 
-	button = new QPushButton("&OK");
+	button = new QPushButton(tr("&OK"));
 	button->setDefault(true);
 	connect(button, SIGNAL(clicked()), this, SLOT(close()));
 	hbox->addWidget(button, 0, Qt::AlignHCenter);
@@ -194,7 +194,7 @@ LegalInformationDialog::LegalInformationDialog() :
 // ---- AboutDialog ----
 
 AboutDialog::AboutDialog() {
-	setWindowTitle(PROGRAM_NAME " - About");
+	setWindowTitle(tr("%1 - About").arg(PROGRAM_NAME));
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -203,13 +203,12 @@ AboutDialog::AboutDialog() {
 	QHBoxLayout *hbox = new QHBoxLayout;
 	vbox->addLayout(hbox);
 
-	QString str =
+	QString str = tr(
 		"<p><font face='Arial' size='20'><b>%1</b></font></p>"
-
 		"<p>Copyright 2008 - 2009 by jlh (<a href='mailto:jlh@gmx.ch'>jlh@gmx.ch</a>)<br>"
 		"Copyright 2010 by Peter Savichev (proton) (<a href='psavichev@gmail.com'>psavichev@gmail.com</a>)<br>"
 		"Version: %2<br>"
-		"Website: <a href='%3'>%3</a></p>";
+		"Website: <a href='%3'>%3</a></p>");
 	str = str.arg(PROGRAM_NAME).arg(recorderVersion).arg(websiteURL);
 	QLabel *label = new QLabel(str);
 	label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
@@ -221,7 +220,7 @@ AboutDialog::AboutDialog() {
 	label->setPixmap(QPixmap(":/res/tray.png"));
 	hbox->addWidget(label, 0, Qt::AlignTop);
 
-	str =
+	str = tr(
 		"<hr>"
 		"<p>This program is free software; you can redistribute it and/or modify it under<br>"
 		"the terms of the GNU General Public License as published by the <a href='http://www.fsf.org/'>Free<br>"
@@ -238,7 +237,7 @@ AboutDialog::AboutDialog() {
 		"approved in any way by Skype.</p>"
 		"<hr>"
 		"<p><small>Git commit: %1<br>"
-		"Build date: %2</small></p>";
+		"Build date: %2</small></p>");
 	str = str.arg(recorderCommit, recorderDate);
 	label = new QLabel(str);
 	label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
@@ -246,7 +245,7 @@ AboutDialog::AboutDialog() {
 	label->setOpenExternalLinks(true);
 	vbox->addWidget(label);
 
-	QPushButton *button = new QPushButton("&Close");
+	QPushButton *button = new QPushButton(tr("&Close"));
 	connect(button, SIGNAL(clicked()), this, SLOT(close()));
 	vbox->addWidget(button);
 
@@ -256,9 +255,9 @@ AboutDialog::AboutDialog() {
 // ---- FirstRunDialog
 
 FirstRunDialog::FirstRunDialog() :
-	IconDialogBase("Information", QStyle::SP_MessageBoxInformation)
+	IconDialogBase(tr("Information"), QStyle::SP_MessageBoxInformation)
 {
-	QLabel *label = new QLabel(
+	QLabel *label = new QLabel(tr(
 		"<p>Welcome to SkypeRec!</p>"
 
 		"<p>Please note that SkypeRec does not have a main window.<br>"
@@ -267,7 +266,7 @@ FirstRunDialog::FirstRunDialog() :
 		"access previously recorded calls.</p>"
 
 		"<p>Thank you for using SkypeRec!</p>"
-	);
+	));
 	label->setTextFormat(Qt::RichText);
 	vbox->addWidget(label);
 
@@ -286,24 +285,24 @@ FirstRunDialog::FirstRunDialog() :
 // ---- NoSystemTrayDialog ----
 
 NoSystemTrayDialog::NoSystemTrayDialog() :
-	IconDialogBase("Missing system tray", QStyle::SP_MessageBoxQuestion)
+	IconDialogBase(tr("Missing system tray"), QStyle::SP_MessageBoxQuestion)
 {
-	QLabel *label = new QLabel(
-		PROGRAM_NAME " could not detect a system tray.  The system tray is the main point\n"
+	QLabel *label = new QLabel(tr(
+		"%1 could not detect a system tray.  The system tray is the main point\n"
 		"of interaction with SkypeRec.  Do you wish to use a small main window instead?"
-	);
+	).arg(PROGRAM_NAME));
 	vbox->addWidget(label);
 
-	QPushButton *button = new QPushButton("Yes, &always from now on");
+	QPushButton *button = new QPushButton(tr("Yes, &always from now on"));
 	connect(button, SIGNAL(clicked()), this, SLOT(buttonAlways()));
 	hbox->addWidget(button);
 
-	button = new QPushButton("&Yes, this time");
+	button = new QPushButton(tr("&Yes, this time"));
 	button->setDefault(true);
 	connect(button, SIGNAL(clicked()), this, SLOT(buttonYes()));
 	hbox->addWidget(button);
 
-	button = new QPushButton("&Quit");
+	button = new QPushButton(tr("&Quit"));
 	connect(button, SIGNAL(clicked()), this, SLOT(buttonDoQuit()));
 	hbox->addWidget(button);
 
@@ -334,7 +333,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent)
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setSizeConstraint(QLayout::SetFixedSize);
-	button = new QPushButton(QIcon(":/res/tray.png"), "Menu");
+	button = new QPushButton(QIcon(":/res/tray.png"), tr("Menu"));
 	vbox->addWidget(button);
 
 	connect(button, SIGNAL(clicked()), this, SIGNAL(activate()));
