@@ -6,7 +6,7 @@
     <message>
         <location filename="../src/gui.cpp" line="197"/>
         <source>%1 - About</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">О прогамме %1</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="206"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../src/gui.cpp" line="248"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Закрыть</translation>
     </message>
 </context>
 <context>
@@ -29,7 +29,7 @@
     <message>
         <location filename="../src/gui.cpp" line="258"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Информация</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="260"/>
@@ -42,13 +42,14 @@
     <message>
         <location filename="../src/gui.cpp" line="140"/>
         <source>Legal information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Правовая информация</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="142"/>
         <source>Please make sure that recording this call is legal and that all involved parties
 agree with it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Пожалуйста убедитесь, что имеете право записывать этот звонок
+и что участники знают об этом.</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="152"/>
@@ -58,12 +59,12 @@ agree with it.</source>
     <message>
         <location filename="../src/gui.cpp" line="175"/>
         <source>Do not show this information again</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Не показывать эту информацию снова</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="181"/>
         <source>More information &gt;&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Подробнее &gt;&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="186"/>
@@ -76,7 +77,7 @@ agree with it.</source>
     <message>
         <location filename="../src/gui.cpp" line="336"/>
         <source>Menu</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Меню</translation>
     </message>
 </context>
 <context>
@@ -84,7 +85,7 @@ agree with it.</source>
     <message>
         <location filename="../src/gui.cpp" line="288"/>
         <source>Missing system tray</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Системный трей отсутствует</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="290"/>
@@ -105,7 +106,7 @@ of interaction with SkypeRec.  Do you wish to use a small main window instead?</
     <message>
         <location filename="../src/gui.cpp" line="305"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Выход</translation>
     </message>
 </context>
 <context>
@@ -118,32 +119,32 @@ of interaction with SkypeRec.  Do you wish to use a small main window instead?</
     <message>
         <location filename="../src/preferences.cpp" line="442"/>
         <source>Automatically &amp;record calls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Автоматически &amp;записывать звонки</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="443"/>
         <source>&amp;Ask every time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Спрашивать каждый раз</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="444"/>
         <source>Do &amp;not automatically record calls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Не записывать звонки автоматически</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="456"/>
         <source>A&amp;dd</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Добавить</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="460"/>
         <source>Re&amp;move</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Удалить</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="466"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Закрыть</translation>
     </message>
 </context>
 <context>
@@ -151,17 +152,17 @@ of interaction with SkypeRec.  Do you wish to use a small main window instead?</
     <message>
         <location filename="../src/preferences.cpp" line="111"/>
         <source>Automatically &amp;record all calls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Автоматически &amp;записывать все звонки</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="114"/>
         <source>&amp;Ask for every call</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Спрашивать при каждом звонке</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="117"/>
         <source>Do &amp;not automatically record calls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Не записывать звонки автоматически</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="126"/>
@@ -171,223 +172,224 @@ of interaction with SkypeRec.  Do you wish to use a small main window instead?</
     <message>
         <location filename="../src/preferences.cpp" line="130"/>
         <source>Show &amp;balloon notification when recording starts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показать &amp;уведомление при старте записи</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="144"/>
         <source>&amp;Save recorded calls here:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Сохранять звонки сюда:</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="158"/>
         <source>File &amp;name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Имя файла:</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="163"/>
         <source>%Y-%m-%d %H:%M:%S Call with &amp;s - %P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%Y-%m-%d %H:%M:%S разговор с &amp;s - %P</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="164"/>
         <source>Call with &amp;s, %a %b %d %Y, %H:%M:%S - %P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Разговор с &amp;s, %a %b %d %Y, %H:%M:%S - %P</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="165"/>
         <source>%Y, %B/Call with &amp;s, %a %b %d %Y, %H:%M:%S - %P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%Y, %B/Разговор с &amp;s, %a %b %d %Y, %H:%M:%S - %P</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="166"/>
         <source>Calls with &amp;s/Call with &amp;s, %a %b %d %Y, %H:%M:%S - %P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Разговор с &amp;s/Разговор с &amp;s, %a %b %d %Y, %H:%M:%S - %P</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="174"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; The path you have entered is not an absolute path!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Внимание:&lt;/b&gt; Выбранный вами путь не абсолютный!</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="202"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Имя</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="203"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Формат</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="204"/>
         <source>Postfix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Окончание</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="232"/>
         <source>MP3 &amp;bitrate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Битрейт MP3</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="235"/>
         <source>8 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">8 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="236"/>
         <source>16 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">16 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="237"/>
         <source>24 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">24 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="238"/>
         <source>32 kbps (recommended for mono)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">32 кб/с (рекомендовано)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="239"/>
         <source>40 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">40 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="240"/>
         <source>48 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">48 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="241"/>
         <source>56 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">56 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="242"/>
         <source>64 kbps (recommended for stereo)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">64 кб/с (рекомендуется для стерео)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="243"/>
         <source>80 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">80 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="244"/>
         <source>96 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">96 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="245"/>
         <source>112 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">112 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="246"/>
         <source>128 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">128 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="247"/>
         <source>144 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">144 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="248"/>
         <source>160 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">160 кб/с</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="255"/>
         <source>Ogg Vorbis &amp;quality:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество Ogg Vorbis:</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="258"/>
         <source>Quality -1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество -1 (худшее)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="259"/>
         <source>Quality 0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 0</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="260"/>
         <source>Quality 1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 1</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="261"/>
         <source>Quality 2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 2</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="262"/>
         <source>Quality 3 (recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 3 (рекомендовано)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="263"/>
         <source>Quality 4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 4</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="264"/>
         <source>Quality 5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 5</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="265"/>
         <source>Quality 6</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 6</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="266"/>
         <source>Quality 7</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 7</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="267"/>
         <source>Quality 8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 8</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="268"/>
         <source>Quality 9</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 9</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="269"/>
         <source>Quality 10</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Качество 10 (лучшее)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="278"/>
         <source>Save call &amp;information in files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сохранять информацию звонках в файлах</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="292"/>
         <source>&amp;Display a small main window.  Enable this if your
 environment does not provide a system tray (needs restart)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Показывать маленькое окно.  Выберите, если ваша среда
+не поддерживает системный трей (нужен перезапуск)</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="303"/>
         <source>%1 - Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - Настройки</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="312"/>
         <source>Au&amp;tomatic Recording</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Автоматическая запись</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="313"/>
         <source>&amp;File paths</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Пути к &amp;файлам</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="314"/>
@@ -402,7 +404,7 @@ environment does not provide a system tray (needs restart)</source>
     <message>
         <location filename="../src/preferences.cpp" line="319"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Закрыть</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="346"/>
@@ -414,7 +416,9 @@ environment does not provide a system tray (needs restart)</source>
         <source>
 
 WARNING: Microsoft Windows does not allow colon characters (:) in file names.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+
+ВНИМАНИЕ: Microsoft Windows не поддерживает двоеточие (:) в именах файлов.</translation>
     </message>
 </context>
 <context>
@@ -422,32 +426,32 @@ WARNING: Microsoft Windows does not allow colon characters (:) in file names.</s
     <message>
         <location filename="../src/preferences.cpp" line="187"/>
         <source>Input stream:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Входящий поток:</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="188"/>
         <source>Output stream:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выходящий поток:</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="189"/>
         <source>Mixed stream (stereo):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Смешаный поток (стерео):</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="190"/>
         <source>Mixed stream (mono):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Смешаный поток (моно):</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="577"/>
         <source>Don&apos;t record</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Не записывать</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="578"/>
         <source>Ask</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Спросить</translation>
     </message>
     <message>
         <location filename="../src/preferences.cpp" line="579"/>
@@ -460,27 +464,27 @@ WARNING: Microsoft Windows does not allow colon characters (:) in file names.</s
     <message>
         <location filename="../src/gui.cpp" line="70"/>
         <source>Recording confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Подтверждение записи</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="73"/>
         <source>%1 has started recording the call with &lt;b&gt;%2&lt;/b&gt; (%3).&lt;br&gt;Do you wish to continue recording or shall it stop and delete the file?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 начал запись звока с &lt;b&gt;%2&lt;/b&gt; (%3).&lt;br&gt;Вы хотите продолжить или остановиться и удалить файл?</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="79"/>
         <source>&amp;Automatically perform this action on the next call with %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Автоматически выполнять это действие при следующем разговоре с %1</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="86"/>
         <source>&amp;Continue recording</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Продолжить запись</translation>
     </message>
     <message>
         <location filename="../src/gui.cpp" line="94"/>
         <source>&amp;Stop recording and delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Остановить запись и удалить</translation>
     </message>
 </context>
 </TS>
