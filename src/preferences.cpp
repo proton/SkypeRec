@@ -586,7 +586,7 @@ QVariant PerCallerModel::data(const QModelIndex &index, int role) const
 	const QPair<QString,AUTO_RECORD_TYPE>& ar = autorec_list.at(index.row());
 	switch(role)
 	{
-		case Qt::DisplayRole: return QString(" - ").arg(ar.first, PerCallerModel_data_table[ar.second]);
+		case Qt::DisplayRole: return QString(" - ").arg(ar.first, writerTitle(ar.second));
 		case Qt::EditRole: return ar.first;
 		case Qt::UserRole: return ar.second;
 		default: return QVariant();
