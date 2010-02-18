@@ -43,6 +43,7 @@
 #include <QFileDialog>
 #include <QTabWidget>
 #include <ctime>
+#include <QSignalMapper>
 
 #include "preferences.h"
 #include "common.h"
@@ -180,18 +181,6 @@ QWidget* PreferencesDialog::createPathTab(QWidget* parent)
 	return widget;
 }
 
-const QString writerTitle(FILE_WRITER_ID id)
-{
-	switch(id)
-	{
-	case FILE_WRITER_IN: return QObject::tr("Input stream:");
-	case FILE_WRITER_OUT: return QObject::tr("Output stream:");
-	case FILE_WRITER_2CH: return QObject::tr("Mixed stream (stereo):");
-	case FILE_WRITER_ALL: return QObject::tr("Mixed stream (mono):");
-	default: return QString();
-	}
-}
-
 QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 {
 	QWidget* widget = new QWidget(parent);
@@ -211,6 +200,9 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 		//
 		check = new QCheckBox(writerTitle(FILE_WRITER_ID(i)), widget);
 		check->setChecked(fw.enabled);
+		connect(check, SIGNAL(toggled(bool)), sm_writer_state, SLOT(map()));
+		sm_writer_state->setMapping(check, i);
+		writerStateWidgets.append(check);
 		grid->addWidget(check, i+1, 0);
 		//
 		combo = new QComboBox(widget);
@@ -220,14 +212,20 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 		}
 		int n = combo->findData(fw.format);
 		if(n>=0) combo->setCurrentIndex(n);
+		connect(combo, SIGNAL(currentIndexChanged(int)), sm_writer_format, SLOT(map()));
+		sm_writer_format->setMapping(combo, i);
+		writerFormatWidgets.append(combo);
 		grid->addWidget(combo, i+1, 1);
 		//
 		edit = new QLineEdit(fw.postfix, widget);
+		connect(edit, SIGNAL(editingFinished()), sm_writer_postfix, SLOT(map()));
+		sm_writer_postfix->setMapping(edit, i);
+		writerPostfixWidgets.append(edit);
 		grid->addWidget(edit, i+1, 2);
-		//
-		//TODO: connect
-		//signalmapper?!
 	}
+	connect(sm_writer_state, SIGNAL(mapped(int)), this, SLOT(setFileWriterState(int)));
+	connect(sm_writer_format, SIGNAL(mapped(int)), this, SLOT(setFileWriterFormat(int)));
+	connect(sm_writer_postfix, SIGNAL(mapped(int)), this, SLOT(setFileWriterPostfix(int)));
 	//
 	vbox->addLayout(grid);
 	//
@@ -307,6 +305,10 @@ PreferencesDialog::PreferencesDialog()
 	setWindowTitle(tr("%1 - Preferences").arg(PROGRAM_NAME));
 	setAttribute(Qt::WA_DeleteOnClose);
 
+	sm_writer_state = new QSignalMapper(this);
+	sm_writer_format = new QSignalMapper(this);
+	sm_writer_postfix = new QSignalMapper(this);
+
 	QVBoxLayout* vbox = new QVBoxLayout(this);
 	vbox->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -328,6 +330,24 @@ PreferencesDialog::PreferencesDialog()
 	vbox->addLayout(hbox);
 
 	show();
+}
+
+void PreferencesDialog::setFileWriterState(int writer_id)
+{
+	bool state = writerStateWidgets[writer_id]->isChecked();
+	settings.setFileWriterState(writer_id, state);
+}
+
+void PreferencesDialog::setFileWriterFormat(int writer_id)
+{
+	int format = writerFormatWidgets[writer_id]->currentIndex();
+	settings.setFileWriterFormat(writer_id, format);
+}
+
+void PreferencesDialog::setFileWriterPostfix(int writer_id)
+{
+	const QString& postfix = writerPostfixWidgets[writer_id]->text();
+	settings.setFileWriterPostfix(writer_id, postfix);
 }
 
 void PreferencesDialog::setMp3Quality(int index)

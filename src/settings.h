@@ -36,6 +36,18 @@ enum FILE_WRITER_ID
 	FILE_WRITER_COUNT
 };
 
+inline const QString writerTitle(FILE_WRITER_ID id)
+{
+	switch(id)
+	{
+	case FILE_WRITER_IN: return QObject::tr("Input stream:");
+	case FILE_WRITER_OUT: return QObject::tr("Output stream:");
+	case FILE_WRITER_2CH: return QObject::tr("Mixed stream (stereo):");
+	case FILE_WRITER_ALL: return QObject::tr("Mixed stream (mono):");
+	default: return QString();
+	}
+}
+
 enum AUTO_RECORD_TYPE
 {
 	AUTO_RECORD_ON,
@@ -114,6 +126,10 @@ public slots:
 		setAutoRecord("GLOBAL", v);
 	}
 	void removeAutoRecord(const QString& name);
+	//
+	void setFileWriterState(int writer_id, bool v);
+	void setFileWriterFormat(int writer_id, int v);
+	void setFileWriterPostfix(int writer_id, const QString& v);
 	//
 	void setFilesDirectory(const QString&);
 	void setFilesNames(const QString&);

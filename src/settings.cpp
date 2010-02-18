@@ -98,6 +98,24 @@ void Settings::removeAutoRecord(const QString& name)
 	pref.endGroup();
 }
 
+void Settings::setFileWriterState(int writer_id, bool v)
+{
+	file_writers[writer_id].enabled = v;
+	pref.setValue(QString("FileWriters/Writer%1_Enabled").arg(writer_id), v);
+}
+
+void Settings::setFileWriterFormat(int writer_id, int v)
+{
+	file_writers[writer_id].format = AUDIO_FORMAT(v);
+	pref.setValue(QString("FileWriters/Writer%1_Format").arg(writer_id), v);
+}
+
+void Settings::setFileWriterPostfix(int writer_id, const QString& v)
+{
+	file_writers[writer_id].postfix = v;
+	pref.setValue(QString("FileWriters/Writer%1_Postfix").arg(writer_id), v);
+}
+
 void Settings::setFilesDirectory(const QString& v)
 {
 	files_directory = v;

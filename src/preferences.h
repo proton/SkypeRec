@@ -43,6 +43,8 @@ class QComboBox;
 class QLineEdit;
 class QDateTime;
 class QLabel;
+class QSignalMapper;
+class QCheckBox;
 
 // The preferences dialog
 
@@ -62,6 +64,10 @@ private slots:
 	void browseOutputPath();
 	void updateAbsolutePathWarning(const QString &);
 	//
+	void setFileWriterState(int writer_id);
+	void setFileWriterFormat(int writer_id);
+	void setFileWriterPostfix(int writer_id);
+	//
 	void setMp3Quality(int index);
 	void setOggQuality(int index);
 
@@ -77,6 +83,13 @@ private:
 	QLineEdit* filesPathEdit;
 	QComboBox* mp3QualityWidget;
 	QComboBox* oggQualityWidget;
+	//
+	QVector<QCheckBox*> writerStateWidgets;
+	QVector<QComboBox*> writerFormatWidgets;
+	QVector<QLineEdit*> writerPostfixWidgets;
+	QSignalMapper* sm_writer_state;
+	QSignalMapper* sm_writer_format;
+	QSignalMapper* sm_writer_postfix;
 	//
 	QPointer<PerCallerPreferencesDialog> perCallerDialog;
 
