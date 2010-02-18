@@ -214,15 +214,19 @@ QWidget* PreferencesDialog::createFormatTab(QWidget* parent)
 		grid->addWidget(check, i+1, 0);
 		//
 		combo = new QComboBox(widget);
-		combo->addItem("WAV PCM", AUDIO_FORMAT_WAV);
-		combo->addItem("MP3", AUDIO_FORMAT_MP3);
-		combo->addItem("Ogg Vorbis", AUDIO_FORMAT_OGG);
+		for(int n=0; n<AUDIO_FORMAT_COUNT; ++n)
+		{
+			combo->addItem(audioFormatTitle(AUDIO_FORMAT(n)), n);
+		}
 		int n = combo->findData(fw.format);
 		if(n>=0) combo->setCurrentIndex(n);
 		grid->addWidget(combo, i+1, 1);
 		//
 		edit = new QLineEdit(fw.postfix, widget);
 		grid->addWidget(edit, i+1, 2);
+		//
+		//TODO: connect
+		//signalmapper?!
 	}
 	//
 	vbox->addLayout(grid);
@@ -570,23 +574,13 @@ int PerCallerModel::rowCount(const QModelIndex &) const
 	return autorec_list.count();
 }
 
-const QString writerTitle(AUTO_RECORD_TYPE ar)
-{
-	switch(ar)
-	{
-	case AUTO_RECORD_OFF: return QObject::tr("Don't record");
-	case AUTO_RECORD_ASK: return QObject::tr("Ask");
-	case AUTO_RECORD_ON: return QObject::tr("Automatic");
-	}
-}
-
 QVariant PerCallerModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid() || index.row() >= autorec_list.size()) return QVariant();
 	const QPair<QString,AUTO_RECORD_TYPE>& ar = autorec_list.at(index.row());
 	switch(role)
 	{
-		case Qt::DisplayRole: return QString(" - ").arg(ar.first, writerTitle(ar.second));
+		case Qt::DisplayRole: return QString(" - ").arg(ar.first, autoRecordTitle(ar.second));
 		case Qt::EditRole: return ar.first;
 		case Qt::UserRole: return ar.second;
 		default: return QVariant();

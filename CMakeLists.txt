@@ -38,6 +38,7 @@ SET(SOURCES
 )
 
 SET(MOC_HEADERS
+	src/common.h
 	src/call.h
 	src/gui.h
 	src/preferences.h

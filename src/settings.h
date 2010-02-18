@@ -12,8 +12,20 @@ enum AUDIO_FORMAT
 {
 	AUDIO_FORMAT_WAV,
 	AUDIO_FORMAT_MP3,
-	AUDIO_FORMAT_OGG
+	AUDIO_FORMAT_OGG,
+	AUDIO_FORMAT_COUNT
 };
+
+inline const QString audioFormatTitle(AUDIO_FORMAT af)
+{
+	switch(af)
+	{
+	case AUDIO_FORMAT_WAV: return QObject::tr("WAV PCM");
+	case AUDIO_FORMAT_MP3: return QObject::tr("MP3");
+	case AUDIO_FORMAT_OGG: return QObject::tr("Ogg Vorbis");
+	default: return QString();
+	}
+}
 
 enum FILE_WRITER_ID
 {
@@ -30,6 +42,16 @@ enum AUTO_RECORD_TYPE
 	AUTO_RECORD_ASK,
 	AUTO_RECORD_OFF
 };
+
+inline const QString autoRecordTitle(AUTO_RECORD_TYPE ar)
+{
+	switch(ar)
+	{
+	case AUTO_RECORD_OFF: return QObject::tr("Don't record");
+	case AUTO_RECORD_ASK: return QObject::tr("Ask");
+	case AUTO_RECORD_ON: return QObject::tr("Automatic");
+	}
+}
 
 struct FileWriter
 {
