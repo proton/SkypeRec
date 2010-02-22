@@ -50,6 +50,8 @@ SET(MOC_HEADERS
 
 SET(RESOURCES resources.qrc)
 
+SET(TRANSLATIONS translations/skyperec_ru.ts)
+
 # generation of version.cpp
 
 ADD_CUSTOM_TARGET(Version

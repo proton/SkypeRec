@@ -22,6 +22,8 @@
 	http://www.fsf.org/
 */
 
+#include <QTranslator>
+
 #include <QMessageBox>
 #include <QDir>
 #include <QProcess>
@@ -31,6 +33,8 @@
 #include <QDateTime>
 #include <iostream>
 #include <cstdlib>
+
+#include <QMap>
 
 #include "recorder.h"
 #include "common.h"
@@ -191,8 +195,53 @@ void Recorder::debugMessage(const QString &s)
 		<< s.toLocal8Bit().constData() << "\n";
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	Recorder recorder(argc, argv);
+	QMap<QLocale::Language, QString> translations;
+
+	//adding translations search paths
+	QStringList translation_dirs;
+	translation_dirs << QCoreApplication::applicationDirPath();
+	translation_dirs << QCoreApplication::applicationDirPath()+"/translations";
+#ifdef PROGRAM_DATA_DIR
+	translation_dirs << QString(PROGRAM_DATA_DIR)+"/translations";
+#endif
+#ifdef Q_WS_MAC
+	translation_dirs << QCoreApplication::applicationDirPath()+"/../Resources";
+#endif
+	//looking for qm-files in translation directories
+	QStringListIterator dir_path(translation_dirs);
+	while(dir_path.hasNext())
+	{
+		QDir dir(dir_path.next());
+		QStringList fileNames = dir.entryList(QStringList("skyperec_*.qm"));
+		for(int i=0; i < fileNames.size(); ++i)
+		{
+			QString filename(fileNames[i]);
+			QString fullpath(dir.absoluteFilePath(filename));
+			filename.remove(0, filename.indexOf('_') + 1);
+			filename.chop(3);
+			QLocale locale(filename);
+			if(!translations.contains(locale.language()))
+			{
+				translations[locale.language()]=fullpath;
+			}
+		}
+	}
+	translations[QLocale::English]="";
+
+	QLocale::Language language = QLocale::system().language();
+#ifdef unix
+	//Fixing Qt's problem on unix systems...
+	QString system_lang(qgetenv("LANG").constData());
+	system_lang.truncate(system_lang.indexOf('.'));
+	if(system_lang.size()>0) language = QLocale(system_lang).language();
+#endif
+
+	QTranslator translator;
+	translator.load(translations[language]);
+	qApp->installTranslator(&translator);
 
 	return recorder.exec();
 }
