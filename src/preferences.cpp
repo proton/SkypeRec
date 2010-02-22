@@ -122,7 +122,7 @@ QWidget* PreferencesDialog::createRecordingTab(QWidget* parent)
 	int auto_rec = settings.autoRecordGlobal();
 	group->button(auto_rec)->setChecked(true);
 	//
-	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecord(int)));
+	connect(group, SIGNAL(buttonClicked(int)), &settings, SLOT(setAutoRecordGlobal(int)));
 
 	QPushButton* button = new QPushButton(tr("Edit &per caller preferences"), widget);
 	connect(button, SIGNAL(clicked(bool)), this, SLOT(editPerCallerPreferences()));
