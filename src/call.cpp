@@ -291,7 +291,7 @@ void Call::removeWriters()
 {
 	for(int i=0; i<writers.count(); ++i)
 	{
-		if(writers[i]!=NULL) delete writers[i];
+		if(writers[i]) delete writers[i];
 	}
 }
 
@@ -339,17 +339,20 @@ void Call::startRecording(bool force)
 	bool files_are_open = true;
 	for(i=0; i<writers.count(); ++i)
 	{
-		FileWriter fw = settings.fileWriters(i);
-		switch(fw.format)
+		if(settings.fileWriters(i).enabled)
 		{
-			case AUDIO_FORMAT_WAV: writers[i] = new WaveWriter(); break;
-			case AUDIO_FORMAT_MP3: writers[i] = new Mp3Writer(); break;
-			case AUDIO_FORMAT_OGG: writers[i] = new VorbisWriter(); break;
-			default: break;
+			FileWriter fw = settings.fileWriters(i);
+			switch(fw.format)
+			{
+				case AUDIO_FORMAT_WAV: writers[i] = new WaveWriter(); break;
+				case AUDIO_FORMAT_MP3: writers[i] = new Mp3Writer(); break;
+				case AUDIO_FORMAT_OGG: writers[i] = new VorbisWriter(); break;
+				default: break;
+			}
+			if(settings.filesTags()) writers[i]->setTags(constructCommentTag(FILE_WRITER_ID(i)), timeStartRecording);
+			files_are_open = writers[i]->open(fn+fw.postfix, skypeSamplingRate, writer_stereo(FILE_WRITER_ID(i)));
+			if(!files_are_open) break;
 		}
-		if(settings.filesTags()) writers[i]->setTags(constructCommentTag(FILE_WRITER_ID(i)), timeStartRecording);
-		files_are_open = writers[i]->open(fn+fw.postfix, skypeSamplingRate, writer_stereo(FILE_WRITER_ID(i)));
-		if(!files_are_open) break;
 	}
 	if (!files_are_open)
 	{
@@ -541,14 +544,10 @@ void Call::tryToWrite(bool flush)
 	QByteArray dummy;
 	mixToMono(samples);
 	bool success = true;
-	if(success && settings.fileWriters(FILE_WRITER_ALL).enabled)
-		success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
-	if(success && settings.fileWriters(FILE_WRITER_IN).enabled)
-		success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
-	if(success && settings.fileWriters(FILE_WRITER_OUT).enabled)
-		success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
-	if(success && settings.fileWriters(FILE_WRITER_2CH).enabled)
-		success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
+	if(success && writers[FILE_WRITER_ALL]) success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
+	if(success && writers[FILE_WRITER_IN])  success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
+	if(success && writers[FILE_WRITER_OUT]) success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
+	if(success && writers[FILE_WRITER_2CH]) success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
 
 	if (!success)
 	{
@@ -591,7 +590,7 @@ void Call::stopRecording(bool flush)
 	if (flush) tryToWrite(true);
 	for(int i=0; i<writers.count(); ++i)
 	{
-		writers[i]->close();
+		if(writers[i]) writers[i]->close();
 	}
 
 	if (syncFile.isOpen()) syncFile.close();
