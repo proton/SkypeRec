@@ -111,11 +111,11 @@ private slots:
 	void radioChanged();
 
 private:
-	QListView *listWidget;
-	PerCallerModel *model;
-	QRadioButton *radioYes;
-	QRadioButton *radioAsk;
-	QRadioButton *radioNo;
+	QListView* listWidget;
+	PerCallerModel* model;
+	QRadioButton* radioYes;
+	QRadioButton* radioAsk;
+	QRadioButton* radioNo;
 
 	DISABLE_COPY_AND_ASSIGNMENT(PerCallerPreferencesDialog);
 };

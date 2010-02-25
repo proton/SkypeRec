@@ -584,8 +584,11 @@ void PerCallerModel::load()
 	const QHash<QString, AUTO_RECORD_TYPE>& hash = settings.autoRecordTable();
 	for(QHash<QString, AUTO_RECORD_TYPE>::const_iterator it=hash.constBegin(); it!=hash.constEnd(); ++it)
 	{
-		QPair<QString,AUTO_RECORD_TYPE> ar(it.key(), it.value());
-		autorec_list.append(ar);
+		if(it.key()!="GLOBAL")
+		{
+			QPair<QString,AUTO_RECORD_TYPE> ar(it.key(), it.value());
+			autorec_list.append(ar);
+		}
 	}
 }
 
@@ -600,7 +603,7 @@ QVariant PerCallerModel::data(const QModelIndex &index, int role) const
 	const QPair<QString,AUTO_RECORD_TYPE>& ar = autorec_list.at(index.row());
 	switch(role)
 	{
-		case Qt::DisplayRole: return QString(" - ").arg(ar.first, autoRecordTitle(ar.second));
+		case Qt::DisplayRole: return QString("%1 - %2").arg(ar.first, autoRecordTitle(ar.second));
 		case Qt::EditRole: return ar.first;
 		case Qt::UserRole: return ar.second;
 		default: return QVariant();
