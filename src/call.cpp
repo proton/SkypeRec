@@ -539,9 +539,14 @@ void Call::tryToWrite(bool flush)
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
-	QByteArray bufferRemote2(bufferRemote);
-	QByteArray bufferLocal2(bufferLocal);
+	QByteArray bufferRemote2, bufferLocal2;
 	QByteArray dummy;
+	if(writers[FILE_WRITER_2CH])
+	{
+		bufferRemote2 = bufferRemote;
+		bufferLocal2 = bufferLocal;
+	}
+
 	mixToMono(samples);
 	bool success = true;
 	if(success && writers[FILE_WRITER_ALL]) success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
