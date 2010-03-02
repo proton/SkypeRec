@@ -264,7 +264,7 @@ void Call::hideConfirmation(AUTO_RECORD_TYPE should)
 void Call::confirmRecording()
 {
 	shouldRecord = AUTO_RECORD_ON;
-	emit showLegalInformation();
+	if(!settings.guiHideLegalInfo()) emit showLegalInformation();
 }
 
 void Call::denyRecording()
