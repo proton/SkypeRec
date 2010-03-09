@@ -525,20 +525,23 @@ void PerCallerPreferencesDialog::remove()
 		model->removeRow(sel.takeLast().row());
 }
 
-void PerCallerPreferencesDialog::selectionChanged() {
+void PerCallerPreferencesDialog::selectionChanged()
+{
 	QModelIndexList sel = listWidget->selectionModel()->selectedIndexes();
 	bool notEmpty = !sel.isEmpty();
-	int mode = -1;
-	while (!sel.isEmpty()) {
+	int ar_mode = -1;
+	while (!sel.isEmpty())
+	{
 		int m = model->data(sel.takeLast(), Qt::UserRole).toInt();
-		if (mode == -1) {
-			mode = m;
-		} else if (mode != m) {
-			mode = -1;
+		if (ar_mode == -1) ar_mode = m;
+		else if (ar_mode != m)
+		{
+			ar_mode = -1;
 			break;
 		}
 	}
-	if (mode == -1) {
+	if (ar_mode == -1)
+	{
 		// Qt is a bit annoying about this: You can't deselect
 		// everything unless you disable auto-exclusive mode
 		radioYes->setAutoExclusive(false);
@@ -550,13 +553,10 @@ void PerCallerPreferencesDialog::selectionChanged() {
 		radioYes->setAutoExclusive(true);
 		radioAsk->setAutoExclusive(true);
 		radioNo ->setAutoExclusive(true);
-	} else if (mode == 0) {
-		radioNo->setChecked(true);
-	} else if (mode == 1) {
-		radioAsk->setChecked(true);
-	} else if (mode == 2) {
-		radioYes->setChecked(true);
 	}
+	else if (ar_mode == AUTO_RECORD_OFF) radioNo->setChecked(true);
+	else if (ar_mode == AUTO_RECORD_ASK) radioAsk->setChecked(true);
+	else if (ar_mode == AUTO_RECORD_ON) radioYes->setChecked(true);
 
 	radioYes->setEnabled(notEmpty);
 	radioAsk->setEnabled(notEmpty);
