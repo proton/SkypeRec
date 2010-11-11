@@ -28,6 +28,7 @@
 #include <QSystemTrayIcon>
 #include <QPointer>
 #include <QMap>
+#include <QTime>
 
 #include "common.h"
 
@@ -35,6 +36,7 @@ class QAction;
 class QMenu;
 class QSignalMapper;
 class MainWindow;
+class QTimer;
 
 class TrayIcon : public QSystemTrayIcon {
 	Q_OBJECT
@@ -65,13 +67,12 @@ private slots:
 	void setWindowedMode();
 	void createMainWindow();
 	void activate();
-
-private:
 	void updateToolTip();
 
 private:
 	struct CallData {
 		QString skypeName;
+		QTime startTime;
 		bool isRecording;
 		QMenu *menu;
 		QAction *startAction;
@@ -91,6 +92,7 @@ private:
 	QSignalMapper *smStopAndDelete;
 	QPointer<MainWindow> window;
 	bool colored;
+	QTimer* tooltip_updater;
 
 	DISABLE_COPY_AND_ASSIGNMENT(TrayIcon);
 };

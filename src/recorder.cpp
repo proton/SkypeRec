@@ -172,11 +172,10 @@ void Recorder::skypeNotify(const QString &s)
 		callHandler->callCmd(args);
 }
 
-void Recorder::skypeConnected(bool conn) {
-	if (conn)
-		debug("skype connection established");
-	else
-		debug("skype not connected");
+void Recorder::skypeConnected(bool conn)
+{
+	if (conn) debug("skype connection established");
+	else debug("skype not connected");
 }
 
 void Recorder::skypeConnectionFailed(const QString &reason)
@@ -191,6 +190,7 @@ void Recorder::skypeConnectionFailed(const QString &reason)
 
 void Recorder::debugMessage(const QString &s)
 {
+	//Q_UNUSED(s)
 	std::cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ").toLocal8Bit().constData()
 		<< s.toLocal8Bit().constData() << "\n";
 }

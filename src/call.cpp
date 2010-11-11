@@ -493,13 +493,16 @@ void Call::tryToWrite(bool flush)
 
 	long samples; // number of samples to write
 
-	if (flush) {
+	if (flush)
+	{
 		// when flushing, we pad the shorter buffer, so that all
 		// available data is written.  this shouldn't usually be a
 		// significant amount, but it might be if there was an audio
 		// I/O error in Skype.
 		samples = padBuffers();
-	} else {
+	}
+	else
+	{
 		long l = bufferLocal.size() / 2;
 		long r = bufferRemote.size() / 2;
 
@@ -508,7 +511,8 @@ void Call::tryToWrite(bool flush)
 		long syncAmount = sync.getSync();
 		syncAmount = (syncAmount / 160) * 160;
 
-		if (syncAmount) {
+		if (syncAmount)
+		{
 			doSync(syncAmount);
 			sync.reset();
 			l = bufferLocal.size() / 2;
@@ -518,14 +522,17 @@ void Call::tryToWrite(bool flush)
 		if (syncFile.isOpen())
 			syncFile.write(QString("%1 %2 %3\n").arg(syncTime.elapsed()).arg(r - l).arg(syncAmount).toAscii().constData());
 
-		if (std::labs(r - l) > skypeSamplingRate * 20) {
+		if (std::labs(r - l) > skypeSamplingRate * 20)
+		{
 			// more than 20 seconds out of sync, something went
 			// wrong.  avoid eating memory by accumulating data
 			long s = (r - l) / skypeSamplingRate;
 			debug(QString("Call %1: WARNING: seriously out of sync by %2s; padding").arg(id).arg(s));
 			samples = padBuffers();
 			sync.reset();
-		} else {
+		}
+		else
+		{
 			samples = l < r ? l : r;
 
 			// skype usually sends new PCM data every 10ms (160
@@ -539,20 +546,23 @@ void Call::tryToWrite(bool flush)
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
-	QByteArray bufferRemote2, bufferLocal2;
+	//QByteArray bufferRemote2, bufferLocal2;
 	QByteArray dummy;
-	if(writers[FILE_WRITER_2CH])
-	{
-		bufferRemote2 = bufferRemote;
-		bufferLocal2 = bufferLocal;
-	}
 
-	mixToMono(samples);
 	bool success = true;
-	if(success && writers[FILE_WRITER_ALL]) success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
+	if(success && writers[FILE_WRITER_2CH])
+	{
+		/*QByteArray*/ bufferLocal2 = bufferLocal;
+		/*QByteArray*/ bufferRemote2 = bufferRemote;
+		success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
+	}
+	if(success && writers[FILE_WRITER_ALL])
+	{
+		mixToMono(samples);
+		success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
+	}
 	if(success && writers[FILE_WRITER_IN])  success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
 	if(success && writers[FILE_WRITER_OUT]) success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
-	if(success && writers[FILE_WRITER_2CH]) success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
 
 	if (!success)
 	{

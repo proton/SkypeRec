@@ -50,10 +50,12 @@ TrayIcon::TrayIcon(QObject *p) : QSystemTrayIcon(p) {
 	smStart = new QSignalMapper(this);
 	smStop = new QSignalMapper(this);
 	smStopAndDelete = new QSignalMapper(this);
+	tooltip_updater = new QTimer(this);
 
 	connect(smStart, SIGNAL(mapped(int)), this, SIGNAL(startRecording(int)));
 	connect(smStop, SIGNAL(mapped(int)), this, SIGNAL(stopRecording(int)));
 	connect(smStopAndDelete, SIGNAL(mapped(int)), this, SIGNAL(stopRecordingAndDelete(int)));
+	connect(tooltip_updater, SIGNAL(timeout()), this, SLOT(updateToolTip()));
 
 	menu = new QMenu;
 	separator = menu->addSeparator();
@@ -67,8 +69,10 @@ TrayIcon::TrayIcon(QObject *p) : QSystemTrayIcon(p) {
 
 	setContextMenu(menu);
 	updateToolTip();
+	tooltip_updater->start(1000);
 
 	connect(this, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(activate()));
+
 
 	show();
 }
@@ -122,10 +126,10 @@ void TrayIcon::startedCall(int id, const QString &skypeName) {
 
 	data.skypeName = skypeName;
 	data.isRecording = false;
-	data.menu = new QMenu(QString("Call with ") + skypeName, menu);
-	data.startAction = data.menu->addAction("&Start recording", smStart, SLOT(map()));
-	data.stopAction = data.menu->addAction("S&top recording", smStop, SLOT(map()));
-	data.stopAndDeleteAction = data.menu->addAction("Stop recording and &delete file", smStopAndDelete, SLOT(map()));
+	data.menu = new QMenu(tr("Call with %1").arg(skypeName), menu);
+	data.startAction = data.menu->addAction(tr("&Start recording"), smStart, SLOT(map()));
+	data.stopAction = data.menu->addAction(tr("S&top recording"), smStop, SLOT(map()));
+	data.stopAndDeleteAction = data.menu->addAction(tr("Stop recording and &delete file"), smStopAndDelete, SLOT(map()));
 
 	data.startAction->setEnabled(true);
 	data.stopAction->setEnabled(false);
@@ -158,6 +162,7 @@ void TrayIcon::startedRecording(int id)
 	//
 	CallData &data = callMap[id];
 	data.isRecording = true;
+	data.startTime.start();
 	data.startAction->setEnabled(false);
 	data.stopAction->setEnabled(true);
 	data.stopAndDeleteAction->setEnabled(true);
@@ -165,7 +170,7 @@ void TrayIcon::startedRecording(int id)
 	if (supportsMessages() && settings.guiNotify())
 	{
 		showMessage("Recording started",
-			QString("The call with %1 is now being recorded.").arg(data.skypeName),
+			tr("The call with %1 is now being recorded.").arg(data.skypeName),
 			Information, 5000);
 	}
 
@@ -184,15 +189,22 @@ void TrayIcon::stoppedRecording(int id) {
 	updateToolTip();
 }
 
+#include <QtDebug>
+
 void TrayIcon::updateToolTip() {
 	QString str = PROGRAM_NAME;
 
-	if (!callMap.isEmpty()) {
-		for (CallMap::const_iterator i = callMap.constBegin(); i != callMap.constEnd(); ++i) {
+	if (!callMap.isEmpty())
+	{
+		for (CallMap::const_iterator i=callMap.constBegin(); i!=callMap.constEnd(); ++i)
+		{
 			const CallData &data = i.value();
-			str += QString(data.isRecording ?
-				"\nThe call with '%1' is being recorded" :
-				"\nThe call with '%1' is not being recorded").arg(data.skypeName);
+			if(data.isRecording)
+			{
+				QTime duration = QTime().addMSecs(data.startTime.elapsed());
+				str += tr("\nThe call with '%1' is being recorded (%2)").arg(data.skypeName).arg(duration.toString());
+			}
+			else str += tr("\nThe call with '%1' is not being recorded").arg(data.skypeName);
 		}
 	}
 
