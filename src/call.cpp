@@ -276,8 +276,14 @@ void Call::denyRecording()
 	removeWriters();
 }
 
-void Call::removeFiles()
+void Call::removeFiles(bool ask)
 {
+	if(ask)
+	{
+		QMessageBox msgbox(QMessageBox::Question, tr("Remove confirmation"), tr("Do you really want to delete the recorded files?"), QMessageBox::Yes|QMessageBox::No);
+		int ret = msgbox.exec();
+		if(ret!=QMessageBox::Yes) return;
+	}
 	for(int i=0; i<writers.count(); ++i)
 	if(writers[i]!=NULL)
 	{
@@ -732,7 +738,7 @@ void CallHandler::stopRecordingAndDelete(int id)
 
 	Call *call = calls[id];
 	call->stopRecording();
-	call->removeFiles();
+	call->removeFiles(true);
 	call->removeWriters();
 	call->hideConfirmation(AUTO_RECORD_OFF);
 }

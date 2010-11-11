@@ -86,7 +86,7 @@ public:
 	bool statusActive() const;
 	CallID getID() const { return id; }
 	CallID getConfID() const { return confID; }
-	void removeFiles();
+	void removeFiles(bool ask = false);
 	void removeWriters();
 	void hideConfirmation(AUTO_RECORD_TYPE);
 	inline bool getIsRecording() const { return isRecording; }
