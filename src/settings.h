@@ -62,6 +62,7 @@ inline const QString autoRecordTitle(AUTO_RECORD_TYPE ar)
 	case AUTO_RECORD_OFF: return QObject::tr("Don't record");
 	case AUTO_RECORD_ASK: return QObject::tr("Ask");
 	case AUTO_RECORD_ON: return QObject::tr("Automatic");
+	default: return QString();
 	}
 }
 
