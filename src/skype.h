@@ -32,6 +32,17 @@
 
 #include "common.h"
 
+namespace CONNECTION_STATE
+{
+	enum CONNECTION_STATE
+	{
+		DISONNECTED,
+		CONNECTED,
+		CONNECTED2,
+		CONNECTED3
+	};
+}
+
 class SkypeExport;
 class QTimer;
 class QDBusError;
@@ -66,7 +77,7 @@ private slots:
 
 private:
 	QDBusConnection dbus;
-	int connectionState;
+	CONNECTION_STATE::CONNECTION_STATE connectionState;
 	SkypeExport *exported;
 	QTimer *timer;
 	QString skypeName;

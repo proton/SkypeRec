@@ -37,7 +37,7 @@ namespace
 	const QString skypeInterfaceName("com.Skype.API");
 }
 
-Skype::Skype(QObject *parent) : QObject(parent), dbus("SkypeRecorder"), connectionState(0)
+Skype::Skype(QObject *parent) : QObject(parent), dbus("SkypeRecorder"), connectionState(CONNECTION_STATE::DISONNECTED)
 {
 	timer = new QTimer(this);
 	timer->setInterval(5000);
@@ -84,7 +84,7 @@ void Skype::connectToSkype()
 	if (!timer->isActive()) timer->start();
 
 	sendWithAsyncReply("NAME SkypeCallRecorder");
-	connectionState = 1;
+	connectionState = CONNECTION_STATE::CONNECTED;
 }
 
 void Skype::serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
@@ -94,16 +94,16 @@ void Skype::serviceOwnerChanged(const QString &name, const QString &oldOwner, co
 	if (oldOwner.isEmpty())
 	{
 		debug(QString("DBUS: Skype API service appeared as %1").arg(newOwner));
-		if (connectionState != 3)
+		if (connectionState != CONNECTION_STATE::CONNECTED3)
 			connectToSkype();
 	}
 	else if (newOwner.isEmpty())
 	{
 		debug("DBUS: Skype API service disappeared");
-		if (connectionState == 3)
+		if (connectionState == CONNECTION_STATE::CONNECTED3)
 			emit connected(false);
 		timer->stop();
-		connectionState = 0;
+		connectionState = CONNECTION_STATE::DISONNECTED;
 	}
 }
 
@@ -165,7 +165,7 @@ void Skype::methodCallback(const QDBusMessage &msg)
 {
 	if (msg.type() != QDBusMessage::ReplyMessage)
 	{
-		connectionState = 0;
+		connectionState = CONNECTION_STATE::DISONNECTED;
 		emit connectionFailed("Cannot communicate with Skype");
 		return;
 	}
@@ -173,11 +173,11 @@ void Skype::methodCallback(const QDBusMessage &msg)
 	QString s = msg.arguments().value(0).toString();
 	debug(QString("SKYPE <R- %1").arg(s));
 
-	if (connectionState == 1)
+	if (connectionState == CONNECTION_STATE::CONNECTED)
 	{
 		if (s == "OK")
 		{
-			connectionState = 2;
+			connectionState = CONNECTION_STATE::CONNECTED2;
 			sendWithAsyncReply("PROTOCOL 5");
 		}
 		else if (s == "CONNSTATUS OFFLINE")
@@ -187,24 +187,24 @@ void Skype::methodCallback(const QDBusMessage &msg)
 			// in and we may again try to connect.  this is an
 			// annoying limitation of the Skype API which we work
 			// around be polling
-			connectionState = 0;
+			connectionState = CONNECTION_STATE::DISONNECTED;
 		}
 		else
 		{
-			connectionState = 0;
+			connectionState = CONNECTION_STATE::DISONNECTED;
 			emit connectionFailed("Skype denied access");
 		}
 	}
-	else if (connectionState == 2)
+	else if (connectionState == CONNECTION_STATE::CONNECTED2)
 	{
 		if (s == "PROTOCOL 5")
 		{
-			connectionState = 3;
+			connectionState = CONNECTION_STATE::CONNECTED3;
 			emit connected(true);
 		}
 		else
 		{
-			connectionState = 0;
+			connectionState = CONNECTION_STATE::DISONNECTED;
 			emit connectionFailed("Skype handshake error");
 		}
 	}
@@ -212,13 +212,13 @@ void Skype::methodCallback(const QDBusMessage &msg)
 
 void Skype::methodError(const QDBusError &error, const QDBusMessage &)
 {
-	connectionState = 0;
+	connectionState = CONNECTION_STATE::DISONNECTED;
 	emit connectionFailed(error.message());
 }
 
 void Skype::doNotify(const QString &s)
 {
-	if (connectionState != 3) return;
+	if (connectionState != CONNECTION_STATE::CONNECTED3) return;
 
 	debug(QString("SKYPE <-- %1").arg(s));
 
@@ -230,16 +230,16 @@ void Skype::doNotify(const QString &s)
 
 void Skype::poll()
 {
-	if (connectionState == 0)
+	if (connectionState == CONNECTION_STATE::DISONNECTED)
 	{
 		connectToSkype();
 	}
-	else if (connectionState == 3)
+	else if (connectionState == CONNECTION_STATE::CONNECTED3)
 	{
 		if (sendWithReply("PING", 2000) != "PONG")
 		{
 			debug("Skype didn't reply with PONG to our PING");
-			connectionState = 0;
+			connectionState = CONNECTION_STATE::DISONNECTED;
 			emit connected(false);
 		}
 	}
