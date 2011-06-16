@@ -107,10 +107,11 @@ void TrayIcon::setWindowedMode()
 	settings.setGuiWindowed(true);
 }
 
-void TrayIcon::setColor(bool color) {
+void TrayIcon::setColor(bool color)
+{
 	colored = color;
 
-	setIcon(QIcon(color ? ":/res/tray.png" : ":/res/tray-gray.png"));
+	setIcon(QIcon(color ? ":/res/tray-red.png" : ":/res/tray-gray.png"));
 
 	if (window)
 		window->setColor(color);
