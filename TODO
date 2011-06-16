@@ -1,3 +1,7 @@
 * icecast support
 * translation support
 * notify (3 types)
+* add different icons for record and pause
+* fix warnings
+* hide debug messages (by default)
+* fix CMake
