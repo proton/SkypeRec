@@ -56,11 +56,11 @@ signals:
 	void stopRecording(int);
 
 public slots:
-	void setColor(bool);
 	void startedCall(int, const QString &);
 	void stoppedCall(int);
 	void startedRecording(int);
 	void stoppedRecording(int);
+	void connected(bool);
 
 private slots:
 	void checkTrayPresence();
@@ -83,6 +83,8 @@ private:
 	typedef QMap<int, CallData> CallMap;
 
 private:
+	void updateIcon();
+
 	QMenu *menu;
 	QMenu *aboutMenu;
 	QAction *separator;
@@ -91,7 +93,7 @@ private:
 	QSignalMapper *smStop;
 	QSignalMapper *smStopAndDelete;
 	QPointer<MainWindow> window;
-	bool colored;
+	bool is_connected;
 	QTimer* tooltip_updater;
 
 	DISABLE_COPY_AND_ASSIGNMENT(TrayIcon);

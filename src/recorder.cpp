@@ -31,8 +31,6 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDateTime>
-#include <iostream>
-#include <cstdlib>
 
 #include <QMap>
 
@@ -76,7 +74,8 @@ Recorder::~Recorder() {
 	delete trayIcon;
 }
 
-void Recorder::setupGUI() {
+void Recorder::setupGUI()
+{
 	setWindowIcon(QIcon(":/res/tray-red.png"));
 	setQuitOnLastWindowClosed(false);
 
@@ -95,16 +94,18 @@ void Recorder::setupGUI() {
 	}
 }
 
-void Recorder::setupSkype() {
+void Recorder::setupSkype()
+{
 	skype = new Skype(this);
 	connect(skype, SIGNAL(notify(const QString &)),           this, SLOT(skypeNotify(const QString &)));
 	connect(skype, SIGNAL(connected(bool)),                   this, SLOT(skypeConnected(bool)));
 	connect(skype, SIGNAL(connectionFailed(const QString &)), this, SLOT(skypeConnectionFailed(const QString &)));
 
-	connect(skype, SIGNAL(connected(bool)), trayIcon, SLOT(setColor(bool)));
+	connect(skype, SIGNAL(connected(bool)), trayIcon, SLOT(connected(bool)));
 }
 
-void Recorder::setupCallHandler() {
+void Recorder::setupCallHandler()
+{
 	callHandler = new CallHandler(this, skype);
 
 	connect(trayIcon, SIGNAL(startRecording(int)),         callHandler, SLOT(startRecording(int)));
@@ -191,8 +192,8 @@ void Recorder::skypeConnectionFailed(const QString &reason)
 void Recorder::debugMessage(const QString &s)
 {
 	//Q_UNUSED(s)
-	std::cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ").toLocal8Bit().constData()
-		<< s.toLocal8Bit().constData() << "\n";
+	qDebug() << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ").toLocal8Bit().constData()
+		<< s.toLocal8Bit().constData();
 }
 
 int main(int argc, char **argv)

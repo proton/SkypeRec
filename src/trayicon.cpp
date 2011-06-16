@@ -35,7 +35,7 @@
 #include "gui.h"
 
 TrayIcon::TrayIcon(QObject *p) : QSystemTrayIcon(p) {
-	setColor(false);
+	connected(false);
 
 	if(settings.guiWindowed())
 	{
@@ -82,11 +82,12 @@ TrayIcon::~TrayIcon() {
 	delete window;
 }
 
-void TrayIcon::createMainWindow() {
+void TrayIcon::createMainWindow()
+{
 	window = new MainWindow;
 	connect(window, SIGNAL(activate()), this, SLOT(activate()));
 	connect(window, SIGNAL(destroyed()), this, SIGNAL(requestQuit()));
-	window->setColor(colored);
+	window->setColor(is_connected);
 }
 
 void TrayIcon::checkTrayPresence() {
@@ -107,18 +108,16 @@ void TrayIcon::setWindowedMode()
 	settings.setGuiWindowed(true);
 }
 
-void TrayIcon::setColor(bool color)
+void TrayIcon::connected(bool c)
 {
-	colored = color;
-
-	setIcon(QIcon(color ? ":/res/tray-red.png" : ":/res/tray-gray.png"));
-
-	if (window)
-		window->setColor(color);
+	is_connected = c;
+	updateIcon();
+	if(window) window->setColor(is_connected);
 }
 
 
-void TrayIcon::activate() {
+void TrayIcon::activate()
+{
 	contextMenu()->popup(QCursor::pos());
 }
 
@@ -143,9 +142,11 @@ void TrayIcon::startedCall(int id, const QString &skypeName) {
 	menu->insertMenu(separator, data.menu);
 
 	updateToolTip();
+	updateIcon();
 }
 
-void TrayIcon::stoppedCall(int id) {
+void TrayIcon::stoppedCall(int id)
+{
 	if (!callMap.contains(id))
 		return;
 	CallData &data = callMap[id];
@@ -155,6 +156,7 @@ void TrayIcon::stoppedCall(int id) {
 	callMap.remove(id);
 
 	updateToolTip();
+	updateIcon();
 }
 
 void TrayIcon::startedRecording(int id)
@@ -176,23 +178,23 @@ void TrayIcon::startedRecording(int id)
 	}
 
 	updateToolTip();
+	updateIcon();
 }
 
-void TrayIcon::stoppedRecording(int id) {
-	if (!callMap.contains(id))
-		return;
+void TrayIcon::stoppedRecording(int id)
+{
+	if(!callMap.contains(id)) return;
 	CallData &data = callMap[id];
 	data.isRecording = false;
 	data.startAction->setEnabled(true);
 	data.stopAction->setEnabled(false);
 	data.stopAndDeleteAction->setEnabled(false);
-
 	updateToolTip();
+	updateIcon();
 }
 
-#include <QtDebug>
-
-void TrayIcon::updateToolTip() {
+void TrayIcon::updateToolTip()
+{
 	QString str = PROGRAM_NAME;
 
 	if (!callMap.isEmpty())
@@ -211,4 +213,20 @@ void TrayIcon::updateToolTip() {
 
 	setToolTip(str);
 }
+
+void TrayIcon::updateIcon()
+{
+	if(is_connected)
+	{
+		foreach(const CallData &data, callMap)
+		if(data.isRecording)
+		{
+			setIcon(QIcon(":/res/tray-red.png"));
+			return;
+		}
+		setIcon(QIcon(":/res/tray-green.png"));
+	}
+	else setIcon(QIcon(":/res/tray-gray.png"));
+}
+
 
