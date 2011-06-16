@@ -93,6 +93,7 @@ private:
 	bool files_tags;
 	bool gui_notify;
 	bool gui_windowed;
+	bool show_debug;
 	bool gui_hide_legal_info;
 	bool gui_first_launch;
 public:
@@ -115,6 +116,7 @@ public:
 	inline bool filesTags() const { return files_tags; }
 	inline bool guiNotify() const { return gui_notify; }
 	inline bool guiWindowed() const { return gui_windowed; }
+	inline bool showDebug() const { return show_debug; }
 	inline bool guiHideLegalInfo() const { return gui_hide_legal_info; }
 	inline bool guiFirstLaunch() const { return gui_first_launch; }
 public slots:
@@ -137,6 +139,7 @@ public slots:
 	void setFilesTags(bool v);
 	void setGuiNotify(bool v);
 	void setGuiWindowed(bool v);
+	void setShowDebug(bool v);
 	void setGuiHideLegalInfo(bool v);
 	void setGuiFirstLaunch(bool v);
 };

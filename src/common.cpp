@@ -23,14 +23,16 @@
 */
 
 #include "common.h"
+#include "settings.h"
 #include "recorder.h"
 
 Recorder *recorderInstance = NULL;
 
 const char *const websiteURL = "http://github.com/proton/SkypeRec";
 
-void debug(const QString &s) {
-	if (recorderInstance)
-		recorderInstance->debugMessage(s);
+void debug(const QString &s)
+{
+	if(!settings.showDebug()) return;
+	if(recorderInstance) recorderInstance->debugMessage(s);
 }
 

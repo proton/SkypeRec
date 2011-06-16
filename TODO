@@ -2,5 +2,4 @@
 * translation support
 * notify (3 types)
 * fix warnings
-* hide debug messages (by default)
 * fix CMake

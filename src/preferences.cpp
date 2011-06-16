@@ -291,9 +291,15 @@ QWidget* PreferencesDialog::createMiscTab(QWidget* parent)
 	QWidget* widget = new QWidget(parent);
 	QVBoxLayout* vbox = new QVBoxLayout(widget);
 
-	QCheckBox *check = new QCheckBox(tr("&Display a small main window.  Enable this if your\n"
+	QCheckBox* check = new QCheckBox(tr("&Display a small main window.  Enable this if your\n"
 		"environment does not provide a system tray (needs restart)"), widget);
 	connect(check, SIGNAL(toggled(bool)), &settings, SLOT(setGuiWindowed(bool)));
+	check->setChecked(settings.guiWindowed());
+	vbox->addWidget(check);
+
+	check = new QCheckBox(tr("Show debug messages."), widget);
+	connect(check, SIGNAL(toggled(bool)), &settings, SLOT(setShowDebug(bool)));
+	check->setChecked(settings.showDebug());
 	vbox->addWidget(check);
 
 	vbox->addStretch();

@@ -146,6 +146,12 @@ void Settings::setGuiWindowed(bool v)
 	pref.setValue("Gui/Windowed", gui_windowed);
 }
 
+void Settings::setShowDebug(bool v)
+{
+	show_debug = v;
+	pref.setValue("Common/ShowDebug", show_debug);
+}
+
 void Settings::setGuiHideLegalInfo(bool v)
 {
 	gui_hide_legal_info = v;
