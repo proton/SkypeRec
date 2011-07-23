@@ -472,29 +472,16 @@ long Call::padBuffers()
 
 	long l = bufferLocal.size();
 	long r = bufferRemote.size();
+	long amount = qAbs(l-r);
+	long ret = qMax(l, r)/2;
 
-	if(l == r) return l / 2;
-	else
+	if(l!=r)
 	{
-		long amount;
-		long ret;
-
-		if (l < r)
-		{
-			amount = r - l;
-			ret = r / 2;
-		}
-		else
-		{
-			amount = l - r;
-			ret = l / 2;
-		}
-
 		bufferLocal.append(QByteArray(amount, 0));
 		debug(QString("Call %1: padding %2 samples on local buffer").arg(id).arg(amount / 2));
-
-		return ret;
 	}
+
+	return ret;
 }
 
 void Call::doSync(long s)
@@ -563,7 +550,6 @@ void Call::tryToWrite(bool flush)
 	// got new samples to write to file, or have to flush.  note that we
 	// have to flush even if samples == 0
 
-	//QByteArray bufferRemote2, bufferLocal2;
 	QByteArray dummy;
 
 	bool success = true;
