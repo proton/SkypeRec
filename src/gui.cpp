@@ -1,7 +1,7 @@
 /*
 	SkypeRec
-	Copyright 2008 - 2009 by jlh jlh at gmx dot ch)
-	Copyright 2010 by Peter Savichev  (proton) <psavichev@gmail.com>
+	Copyright 2008-2009 by jlh <jlh@gmx.ch>
+	Copyright 2010-2011 by Peter Savichev  (proton) <psavichev@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify it
 	under the terms of the GNU General Public License as published by the
@@ -205,8 +205,8 @@ AboutDialog::AboutDialog() {
 
 	QString str = tr(
 		"<p><font face='Arial' size='20'><b>%1</b></font></p>"
-		"<p>Copyright 2008 - 2009 by jlh (<a href='mailto:jlh@gmx.ch'>jlh@gmx.ch</a>)<br>"
-		"Copyright 2010 by Peter Savichev (proton) (<a href='psavichev@gmail.com'>psavichev@gmail.com</a>)<br>"
+		"<p>Copyright 2008-2009 by jlh (<a href='mailto:jlh@gmx.ch'>jlh@gmx.ch</a>)<br>"
+		"Copyright 2010-2011 by Peter Savichev (proton) (<a href='psavichev@gmail.com'>psavichev@gmail.com</a>)<br>"
 		"Version: %2<br>"
 		"Website: <a href='%3'>%3</a></p>");
 	str = str.arg(PROGRAM_NAME).arg(recorderVersion).arg(websiteURL);
