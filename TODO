@@ -1,5 +1,4 @@
 * icecast support
 * translation support
-* notify (3 types)
 * fix warnings
-* fix CMake
+* fix bug on skype reconnect
