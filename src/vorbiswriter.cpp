@@ -138,7 +138,7 @@ void VorbisWriter::close() {
 	AudioFileWriter::close();
 }
 
-bool VorbisWriter::write(QByteArray &left, QByteArray &right, long samples, bool flush) {
+bool VorbisWriter::write(const QByteArray &left, const QByteArray &right, long samples, bool flush) {
 	const long maxChunkSize = 4096;
 
 	const qint16 *leftData = (const qint16 *)left.constData();
@@ -191,10 +191,6 @@ bool VorbisWriter::write(QByteArray &left, QByteArray &right, long samples, bool
 	}
 
 	samplesWritten += samples;
-
-	left.remove(0, samples * 2);
-	if (stereo)
-		right.remove(0, samples * 2);
 
 	return true;
 }

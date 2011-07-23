@@ -124,7 +124,7 @@ void WaveWriter::close() {
 	AudioFileWriter::close();
 }
 
-bool WaveWriter::write(QByteArray &left, QByteArray &right, long samples, bool flush) {
+bool WaveWriter::write(const QByteArray &left, const QByteArray &right, long samples, bool flush) {
 	QByteArray output;
 
 	if (stereo) {
@@ -132,11 +132,12 @@ bool WaveWriter::write(QByteArray &left, QByteArray &right, long samples, bool f
 		// processors instructions can handle faster?
 
 		output.resize(samples * 4);
-		qint16 *outputData = reinterpret_cast<qint16 *>(output.data());
-		qint16 *leftData = reinterpret_cast<qint16 *>(left.data());
-		qint16 *rightData = reinterpret_cast<qint16 *>(right.data());
+		qint16* outputData = reinterpret_cast<qint16 *>(output.data());
+		const qint16* leftData = reinterpret_cast<const qint16*>(left.constData());
+		const qint16* rightData = reinterpret_cast<const qint16 *>(right.constData());
 
-		for (long i = 0; i < samples; i++) {
+		for (long i = 0; i < samples; ++i)
+		{
 			outputData[i * 2] = leftData[i];
 			outputData[i * 2 + 1] = rightData[i];
 		}
@@ -151,20 +152,15 @@ bool WaveWriter::write(QByteArray &left, QByteArray &right, long samples, bool f
 	dataSize += output.size();
 	samplesWritten += samples;
 
-	left.remove(0, samples * 2);
-	if (stereo)
-		right.remove(0, samples * 2);
-
-	if (!ret)
-		return false;
+	if(!ret) return false;
 
 	nextUpdateHeader -= samples;
-	if (flush || nextUpdateHeader <= 0) {
+	if (flush || nextUpdateHeader <= 0)
+	{
 		nextUpdateHeader = updateHeaderInterval;
 		updateHeader();
 
-		if (flush)
-			hasFlushed = true;
+		if(flush) hasFlushed = true;
 	}
 
 	return true;

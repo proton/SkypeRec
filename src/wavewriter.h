@@ -38,7 +38,7 @@ public:
 
 	virtual bool open(const QString &, long, bool);
 	virtual void close();
-	virtual bool write(QByteArray &, QByteArray &, long, bool = false);
+	virtual bool write(const QByteArray &, const QByteArray &, long, bool = false);
 
 private:
 	void updateHeader();

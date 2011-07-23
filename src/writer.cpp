@@ -43,13 +43,15 @@ AudioFileWriter::~AudioFileWriter() {
 	}
 }
 
-void AudioFileWriter::setTags(const QString &comment, const QDateTime &t) {
+void AudioFileWriter::setTags(const QString &comment, const QDateTime &t)
+{
 	tagComment = comment;
 	tagTime = t;
 	mustWriteTags = true;
 }
 
-bool AudioFileWriter::open(const QString &fn, long sr, bool s) {
+bool AudioFileWriter::open(const QString &fn, long sr, bool s)
+{
 	bool b = QDir().mkpath(QFileInfo(fn).path());
 	if (!b)
 		return false;

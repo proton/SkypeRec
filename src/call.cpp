@@ -27,8 +27,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QMessageBox>
-#include <cstdlib>
-#include <cmath>
+#include <QtCore/qmath.h>
 #include <cstring>
 
 #include "call.h"
@@ -57,11 +56,13 @@ AutoSync::AutoSync(int s, long p) :
 	std::memset(delays, 0, sizeof(long) * size);
 }
 
-AutoSync::~AutoSync() {
+AutoSync::~AutoSync()
+{
 	delete[] delays;
 }
 
-void AutoSync::add(long d) {
+void AutoSync::add(long d)
+{
 	long old = delays[index];
 	sum += d - old;
 	sum2 += (qint64)d * (qint64)d - (qint64)old * (qint64)old;
@@ -72,14 +73,15 @@ void AutoSync::add(long d) {
 		suppress--;
 }
 
-long AutoSync::getSync() {
+long AutoSync::getSync()
+{
 	if (suppress)
 		return 0;
 
 	float avg = (float)sum / (float)size;
-	float dev = std::sqrt(((float)sum2 - (float)sum * (float)sum / (float)size) / (float)size);
+	float dev = qSqrt(((float)sum2 - (float)sum * (float)sum / (float)size) / (float)size);
 
-	if (std::fabs(avg) > (float)precision && dev < (float)precision)
+	if(qAbs(avg) > (float)precision && dev < (float)precision)
 		return (long)avg;
 
 	return 0;
@@ -450,13 +452,16 @@ void Call::checkConnections()
 void Call::mixToMono(long samples)
 {
 	bufferMixed.resize(bufferLocal.size());
-	qint16 *mixedData = reinterpret_cast<qint16 *>(bufferMixed.data());
-	qint16 *localData = reinterpret_cast<qint16 *>(bufferLocal.data());
-	qint16 *remoteData = reinterpret_cast<qint16 *>(bufferRemote.data());
+	qint16* mix_ptr = reinterpret_cast<qint16*>(bufferMixed.data());
+	const qint16* l_ptr = reinterpret_cast<const qint16*>(bufferLocal.constData());
+	const qint16* r_ptr = reinterpret_cast<const qint16*>(bufferRemote.constData());
 
 	for (int i = 0; i < samples; ++i)
 	{
-		mixedData[i] = ((qint32)localData[i] + (qint32)remoteData[i]) / (qint32)2; //TODO: fix 2
+		qint32 l = l_ptr[i];
+		qint32 r = r_ptr[i];
+		qint16 m = ((l + r) / qint32(2)); //TODO: fix 2
+		mix_ptr[i] = m;
 	}
 }
 
@@ -534,7 +539,7 @@ void Call::tryToWrite(bool flush)
 		if (syncFile.isOpen())
 			syncFile.write(QString("%1 %2 %3\n").arg(syncTime.elapsed()).arg(r - l).arg(syncAmount).toAscii().constData());
 
-		if (std::labs(r - l) > skypeSamplingRate * 20)
+		if (qAbs(r - l) > skypeSamplingRate * 20)
 		{
 			// more than 20 seconds out of sync, something went
 			// wrong.  avoid eating memory by accumulating data
@@ -564,19 +569,29 @@ void Call::tryToWrite(bool flush)
 	bool success = true;
 	if(success && writers[FILE_WRITER_2CH])
 	{
-		/*QByteArray*/ bufferLocal2 = bufferLocal;
-		/*QByteArray*/ bufferRemote2 = bufferRemote;
-		success = writers[FILE_WRITER_2CH]->write(bufferLocal2, bufferRemote2, samples, flush);
+		success = writers[FILE_WRITER_2CH]->write(bufferLocal, bufferRemote, samples, flush);
 	}
 	if(success && writers[FILE_WRITER_ALL])
 	{
 		mixToMono(samples);
 		success = writers[FILE_WRITER_ALL]->write(bufferMixed, dummy, samples, flush);
 	}
-	if(success && writers[FILE_WRITER_IN])  success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
-	if(success && writers[FILE_WRITER_OUT]) success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
-
-	if (!success)
+	if(success && writers[FILE_WRITER_IN])
+	{
+		success = writers[FILE_WRITER_IN]->write(bufferRemote, dummy, samples, flush);
+	}
+	if(success && writers[FILE_WRITER_OUT])
+	{
+		success = writers[FILE_WRITER_OUT]->write(bufferLocal, dummy, samples, flush);
+	}
+	if(success)
+	{
+		//sync buffers
+		bufferLocal.remove(0, samples*2);
+		bufferRemote.remove(0, samples*2);
+		bufferMixed.remove(0, samples*2);
+	}
+	else
 	{
 		QMessageBox *box = new QMessageBox(QMessageBox::Critical, PROGRAM_NAME " - Error",
 			QString(PROGRAM_NAME " encountered an error while writing this call to disk.  Recording terminated."));
