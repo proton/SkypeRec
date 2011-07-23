@@ -468,29 +468,35 @@ long Call::padBuffers()
 	long l = bufferLocal.size();
 	long r = bufferRemote.size();
 
-	if (l < r) {
-		long amount = r - l;
+	if(l == r) return l / 2;
+	else
+	{
+		long amount;
+		long ret;
+
+		if (l < r)
+		{
+			amount = r - l;
+			ret = r / 2;
+		}
+		else
+		{
+			amount = l - r;
+			ret = l / 2;
+		}
+
 		bufferLocal.append(QByteArray(amount, 0));
 		debug(QString("Call %1: padding %2 samples on local buffer").arg(id).arg(amount / 2));
-		return r / 2;
-	} else if (l > r) {
-		long amount = l - r;
-		bufferRemote.append(QByteArray(amount, 0));
-		debug(QString("Call %1: padding %2 samples on remote buffer").arg(id).arg(amount / 2));
-		return l / 2;
-	}
 
-	return l / 2;
+		return ret;
+	}
 }
 
-void Call::doSync(long s) {
-	if (s > 0) {
-		bufferLocal.append(QByteArray(s * 2, 0));
-		debug(QString("Call %1: padding %2 samples on local buffer").arg(id).arg(s));
-	} else {
-		bufferRemote.append(QByteArray(s * -2, 0));
-		debug(QString("Call %1: padding %2 samples on remote buffer").arg(id).arg(-s));
-	}
+void Call::doSync(long s)
+{
+	if(s < 0) s = -s;
+	bufferLocal.append(QByteArray(s * 2, 0));
+	debug(QString("Call %1: padding %2 samples on local buffer").arg(id).arg(s));
 }
 
 void Call::tryToWrite(bool flush)
