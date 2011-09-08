@@ -161,10 +161,18 @@ QWidget* PreferencesDialog::createPathTab(QWidget* parent)
 	patternWidget->setEditable(true);
 	patternWidget->setEditText(settings.filesNames());
 	label->setBuddy(patternWidget);
-	patternWidget->addItem(tr("%Y-%m-%d %H:%M:%S Call with &s - %P"));
-	patternWidget->addItem(tr("Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
-	patternWidget->addItem(tr("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
-	patternWidget->addItem(tr("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S - %P"));
+	QStringList patterns;
+	patterns << tr("%Y-%m-%d %H:%M:%S Call with &s - %P")
+			 << tr("Call with &s, %a %b %d %Y, %H:%M:%S - %P")
+			 << tr("%Y, %B/Call with &s, %a %b %d %Y, %H:%M:%S - %P")
+			 << tr("&s/%Y-%m%d %H:%M:%S - %P")
+			 << tr("Calls with &s/Call with &s, %a %b %d %Y, %H:%M:%S - %P")
+			 << settings.filesNames();
+	patterns.removeDuplicates();
+	foreach(const QString& pattern, patterns) patternWidget->addItem(pattern);
+	patternWidget->setCurrentIndex(patterns.lastIndexOf(settings.filesNames()));
+
+	//Calls with &s/Call with &s, %Y-%m-%d, %H:%M:%S - %P
 	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), this, SLOT(updatePatternToolTip(const QString &)));
 	connect(patternWidget, SIGNAL(editTextChanged(const QString &)), &settings, SLOT(setFilesNames(const QString &)));
 	vbox->addWidget(label);
